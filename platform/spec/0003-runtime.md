@@ -1,3 +1,17 @@
+---
+id: SPEC-0003
+title: Runtime
+version: 1.0.0
+status: Frozen
+owner: Runtime
+depends_on: ["SPEC-0001", "SPEC-0002", "SPEC-0005", "SPEC-0007", "SPEC-0009"]
+referenced_by: []
+compatibility: Backward Compatible
+since: 1.0
+supersedes: null
+tags: ["runtime"]
+---
+
 # Spec 0003: Runtime
 
 ## Status
@@ -21,4 +35,3 @@ Define the runtime responsibilities of PeripheralOS.
 
 - device-specific rules
 - application-specific rules
-

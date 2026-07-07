@@ -1,41 +1,28 @@
 specs:
   - id: SPEC-0000
     file: 0000-platform.md
-    status: planned
   - id: SPEC-0001
     file: 0001-architecture.md
-    status: planned
   - id: SPEC-0002
     file: 0002-peripheral-abi.md
-    status: planned
   - id: SPEC-0003
     file: 0003-runtime.md
-    status: planned
   - id: SPEC-0004
     file: 0004-device-model.md
-    status: planned
   - id: SPEC-0005
     file: 0005-plugin-model.md
-    status: planned
   - id: SPEC-0006
     file: 0006-action-model.md
-    status: planned
   - id: SPEC-0007
     file: 0007-transport-model.md
-    status: planned
   - id: SPEC-0008
     file: 0008-lifecycle.md
-    status: planned
   - id: SPEC-0009
     file: 0009-security.md
-    status: planned
   - id: SPEC-0010
     file: 0010-capabilities.md
-    status: planned
   - id: SPEC-0011
     file: 0011-extension-model.md
-    status: planned
-
 canonical_contracts:
   - id: peripheralos.abi.v1
     file: abi-v1.yaml
@@ -72,3 +59,5 @@ validation:
   conformance_tests: platform/tests/conformance/
   compatibility_tests: platform/tests/compatibility/
   rule: Implementations must conform to canonical contracts and must not redefine them.
+  - id: SPEC-0012
+    file: 0012-generator.md
