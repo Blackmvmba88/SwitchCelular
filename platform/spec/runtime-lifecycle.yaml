@@ -1,0 +1,90 @@
+id: peripheralos.runtime.lifecycle
+version: 0.1.0
+status: draft
+authority: platform/spec/index.yaml
+
+summary: >
+  Defines the canonical PeripheralOS runtime lifecycle. Runtime implementations
+  must follow this lifecycle unless a future specification revision changes it.
+
+lifecycle:
+  - phase: discover
+    purpose: Locate available plugins, transports, devices, and declared capabilities.
+    may_fail: true
+    failure_behavior: Return structured discovery error without loading unvalidated components.
+
+  - phase: validate
+    purpose: Validate manifests, ABI compatibility, schemas, permissions, and platform requirements.
+    may_fail: true
+    failure_behavior: Reject invalid components before side effects occur.
+
+  - phase: load
+    purpose: Load validated components into runtime memory or runtime registry.
+    may_fail: true
+    failure_behavior: Unload partial component state and emit structured load error.
+
+  - phase: configure
+    purpose: Apply configuration after successful loading and before execution.
+    may_fail: true
+    failure_behavior: Roll back configuration and prevent start.
+
+  - phase: start
+    purpose: Activate components and prepare them for action execution or event handling.
+    may_fail: true
+    failure_behavior: Stop started dependencies and return structured start error.
+
+  - phase: execute
+    purpose: Dispatch actions, process events, and coordinate transports.
+    may_fail: true
+    failure_behavior: Return structured execution errors without corrupting runtime state.
+
+  - phase: observe
+    purpose: Emit telemetry, state transitions, errors, and compatibility evidence.
+    may_fail: false
+    failure_behavior: Observation failure must not silently hide runtime failure.
+
+  - phase: stop
+    purpose: Stop active components while preserving diagnostic state.
+    may_fail: true
+    failure_behavior: Continue shutdown and report failed stop hooks.
+
+  - phase: unload
+    purpose: Remove components from runtime registry and release resources.
+    may_fail: true
+    failure_behavior: Report unreleased resources and mark runtime as degraded if needed.
+
+transition_rules:
+  - discover must precede validate
+  - validate must precede load
+  - load must precede configure
+  - configure must precede start
+  - start must precede execute
+  - stop must precede unload
+  - execute must not run for invalid, unloaded, unconfigured, or unstarted components
+
+plugin_hooks:
+  discover: optional
+  validate: required
+  load: optional
+  configure: optional
+  start: optional
+  execute: action_specific
+  observe: optional
+  stop: optional
+  unload: optional
+
+error_contract:
+  required_fields:
+    - code
+    - phase
+    - message
+    - component_id
+    - recoverable
+  notes:
+    - Errors must be structured.
+    - Errors must identify lifecycle phase.
+    - Runtime must not downgrade validation errors into warnings.
+
+ownership:
+  source_of_truth: platform/spec/runtime-lifecycle.yaml
+  issue: "[M0] Specify runtime lifecycle"
