@@ -1,0 +1,98 @@
+id: peripheralos.security.model
+version: 0.1.0
+status: draft
+authority: platform/spec/index.yaml
+
+summary: >
+  Defines PeripheralOS security boundaries for permissions, capabilities,
+  plugin trust, transport trust, action authorization, and safe failure.
+
+principles:
+  - Security is a platform contract, not an implementation detail.
+  - Components fail closed by default.
+  - Permissions must be explicit and validated before execution.
+  - Capability negotiation must precede privileged behavior.
+  - Transport trust must not imply action authorization.
+
+trust_levels:
+  trusted_core:
+    description: Platform-owned runtime code.
+  trusted_local:
+    description: Local trusted runtime or transport boundary.
+  trusted_pairing:
+    description: Paired device or authenticated local connection.
+  untrusted_local:
+    description: Local but untrusted extension or physical bus.
+  untrusted_remote:
+    description: Remote or network-originated control surface.
+
+permission_model:
+  required_fields:
+    - permission_id
+    - description
+    - side_effect_class
+    - default_grant
+    - audit_required
+
+  default_grant_values:
+    - never
+    - local_only
+    - paired_only
+    - explicit_user_approval
+    - platform_internal
+
+capability_model:
+  rules:
+    - Capabilities must be declared before use.
+    - Capabilities must be negotiated before privileged actions.
+    - Missing capabilities must prevent dependent actions from executing.
+    - Capability names must be stable across compatible versions.
+
+execution_authorization:
+  required_checks:
+    - abi_compatible
+    - plugin_validated
+    - action_schema_valid
+    - permission_granted
+    - capability_available
+    - transport_trust_sufficient
+
+safe_failure:
+  default_behavior: deny
+  required_error_fields:
+    - code
+    - reason
+    - component_id
+    - permission_id
+    - recoverable
+
+restricted_side_effects:
+  - physical_motion
+  - persistent_storage
+  - external_system_change
+  - network_io
+  - high_intensity_light_emission
+  - audio_output_above_safe_threshold
+
+rules:
+  - Untrusted plugins must not execute privileged actions without explicit permission.
+  - Transport trust must be checked independently from plugin trust.
+  - Permission failures must not be silently downgraded.
+  - Security decisions must be observable through structured errors or audit events.
+  - Generated bindings must preserve permission metadata.
+
+compatibility:
+  breaking_changes:
+    - weakening a permission requirement
+    - changing default grant behavior
+    - removing required security checks
+    - changing trust level semantics
+    - hiding security failures
+  non_breaking_changes:
+    - adding a stricter permission requirement under a major-version review path
+    - adding new audit metadata
+    - adding new restricted side-effect classes
+
+ownership:
+  source_of_truth: platform/spec/security-model.yaml
+  issue: "[M0] Define transport and security model"
