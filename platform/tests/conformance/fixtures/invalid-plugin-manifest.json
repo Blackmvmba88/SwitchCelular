@@ -1,0 +1,11 @@
+{
+  "id": "Invalid Plugin Id",
+  "name": "Invalid Plugin",
+  "version": "not-semver",
+  "capabilities": [
+    "led.output"
+  ],
+  "actions": [
+    "led.set_color"
+  ]
+}
