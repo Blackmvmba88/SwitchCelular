@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .generator import emit_ir_schema, emit_json_schema, emit_manifest, write_json
+from .generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_manifest, write_json, write_text
 from .model import PlatformIR
 from .parser import parse_spec
 from .validator import validate_specs
@@ -34,6 +34,13 @@ def main(argv: list[str] | None = None) -> int:
     write_json(out_dir / "schema.json", emit_json_schema(ir))
     write_json(out_dir / "manifest.json", emit_manifest(ir))
     write_json(out_dir / "ir-schema.json", emit_ir_schema(ir))
+    write_json(out_dir / "compatibility.json", emit_compatibility_report(ir))
+    for language, payload in emit_binding_stubs(ir).items():
+        write_json(out_dir / "bindings" / language / "manifest.json", payload)
+        write_text(
+            out_dir / "bindings" / language / f"{language}.md",
+            f"# {language.title()} Binding Stub\n\n- protocol: {ir.protocol}\n- spec_count: {len(ir.specs)}\n",
+        )
     write_json(
         out_dir / "ir.json",
         {

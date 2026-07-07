@@ -4,7 +4,7 @@ title: Runtime
 version: 1.0.0
 status: Frozen
 owner: Runtime
-depends_on: ["SPEC-0001", "SPEC-0002", "SPEC-0005", "SPEC-0007", "SPEC-0009"]
+depends_on: ["SPEC-0001", "SPEC-0002", "SPEC-0009"]
 referenced_by: []
 compatibility: Backward Compatible
 since: 1.0

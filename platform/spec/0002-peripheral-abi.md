@@ -4,7 +4,7 @@ title: Peripheral ABI
 version: 1.0.0
 status: Frozen
 owner: Platform Core
-depends_on: ["SPEC-0001", "SPEC-0009", "SPEC-0010", "SPEC-0011"]
+depends_on: ["SPEC-0001", "SPEC-0009"]
 referenced_by: []
 compatibility: Backward Compatible
 since: 1.0

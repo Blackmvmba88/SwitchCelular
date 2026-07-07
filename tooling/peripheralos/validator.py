@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import asdict
+import re
 
 from .model import SpecDocument, ValidationIssue, ValidationReport
 
 ALLOWED_STATUSES = {"Draft", "Review", "Accepted", "Frozen", "Deprecated", "Superseded"}
 ALLOWED_COMPATIBILITY = {"Backward Compatible", "Breaking", "Migration Required"}
+SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
 
 def validate_specs(specs: list[SpecDocument]) -> ValidationReport:
@@ -19,6 +21,8 @@ def validate_specs(specs: list[SpecDocument]) -> ValidationReport:
     known_ids = set(ids)
     for spec in specs:
         header = spec.header
+        if not SEMVER_RE.match(header.version):
+            issues.append(ValidationIssue("error", "invalid-version", f"invalid version {header.version}", header.id))
         if header.status not in ALLOWED_STATUSES:
             issues.append(ValidationIssue("error", "invalid-status", f"invalid status {header.status}", header.id))
         if header.compatibility not in ALLOWED_COMPATIBILITY:
@@ -30,6 +34,30 @@ def validate_specs(specs: list[SpecDocument]) -> ValidationReport:
                 issues.append(ValidationIssue("error", "missing-dependency", f"unknown dependency {dep}", header.id))
         if header.id == "SPEC-0000" and header.depends_on:
             issues.append(ValidationIssue("warning", "root-dependencies", "platform root spec should not depend on others", header.id))
+
+    adjacency = {spec.header.id: spec.header.depends_on for spec in specs}
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def walk(node: str, stack: list[str]) -> None:
+        if node in visited:
+            return
+        if node in visiting:
+            cycle_start = stack.index(node) if node in stack else 0
+            cycle = " -> ".join(stack[cycle_start:] + [node])
+            issues.append(ValidationIssue("error", "dependency-cycle", f"dependency cycle detected: {cycle}", node))
+            return
+        visiting.add(node)
+        stack.append(node)
+        for dep in adjacency.get(node, []):
+            if dep in adjacency:
+                walk(dep, stack)
+        stack.pop()
+        visiting.remove(node)
+        visited.add(node)
+
+    for spec_id in adjacency:
+        walk(spec_id, [])
 
     ok = not any(issue.severity == "error" for issue in issues)
     return ValidationReport(ok=ok, issues=issues)
@@ -45,4 +73,3 @@ def compatibility_report(spec: SpecDocument) -> dict:
         "owner": spec.header.owner,
         "header": header,
     }
-

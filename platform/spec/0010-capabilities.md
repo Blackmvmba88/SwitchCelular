@@ -4,7 +4,7 @@ title: Capabilities
 version: 1.0.0
 status: Frozen
 owner: Platform Core
-depends_on: ["SPEC-0002", "SPEC-0004"]
+depends_on: ["SPEC-0002"]
 referenced_by: ["SPEC-0002"]
 compatibility: Backward Compatible
 since: 1.0

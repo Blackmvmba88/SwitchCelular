@@ -52,7 +52,7 @@ def parse_frontmatter(markdown: str) -> tuple[dict[str, object], str]:
             i += 1
             continue
         if ":" not in line:
-            raise SpecParseError(f"invalid frontmatter line: {line}")
+            raise SpecParseError(f"invalid frontmatter line {i + 1}: {line}")
         key, raw = line.split(":", 1)
         key = key.strip()
         raw = raw.strip()
@@ -73,6 +73,10 @@ def parse_spec(path: Path) -> SpecDocument:
     missing = [key for key in required if key not in header_data]
     if missing:
         raise SpecParseError(f"{path.name}: missing keys: {', '.join(missing)}")
+    if not str(header_data["id"]).startswith("SPEC-"):
+        raise SpecParseError(f"{path.name}: invalid spec id {header_data['id']}")
+    if not str(header_data["version"]).count(".") >= 1:
+        raise SpecParseError(f"{path.name}: invalid version {header_data['version']}")
     header = SpecHeader(
         id=str(header_data["id"]),
         title=str(header_data["title"]),
@@ -87,4 +91,3 @@ def parse_spec(path: Path) -> SpecDocument:
         tags=[str(x) for x in header_data.get("tags", [])],
     )
     return SpecDocument(path=path, header=header, body=SpecBody(raw_markdown=body))
-

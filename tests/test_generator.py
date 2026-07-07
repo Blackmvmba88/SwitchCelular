@@ -1,12 +1,13 @@
 from pathlib import Path
 import sys
 import unittest
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.cli import load_ir
-from tooling.peripheralos.generator import emit_ir_schema, emit_json_schema, emit_manifest
+from tooling.peripheralos.generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_manifest
 from tooling.peripheralos.validator import compatibility_report, validate_specs
 
 
@@ -22,6 +23,20 @@ class GeneratorTests(unittest.TestCase):
         self.assertEqual(ir_schema["properties"]["protocol"]["const"], ir.protocol)
         self.assertEqual(manifest["spec_count"], len(ir.specs))
         self.assertIn("SPEC-0002", manifest["spec_ids"])
+
+    def test_binding_stubs_exist(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        bindings = emit_binding_stubs(ir)
+        self.assertEqual(set(bindings), {"rust", "kotlin", "typescript", "python"})
+        for language, payload in bindings.items():
+            self.assertEqual(payload["language"], language)
+            self.assertEqual(payload["protocol"], ir.protocol)
+
+    def test_compatibility_report_exists(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        report = emit_compatibility_report(ir)
+        self.assertEqual(report["protocol"], ir.protocol)
+        self.assertEqual(report["status"], "compatible")
 
     def test_compatibility_report_available(self):
         ir = load_ir(ROOT / "platform" / "spec")

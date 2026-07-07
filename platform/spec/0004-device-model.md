@@ -4,7 +4,7 @@ title: Device Model
 version: 1.0.0
 status: Frozen
 owner: Platform Core
-depends_on: ["SPEC-0002", "SPEC-0003"]
+depends_on: ["SPEC-0002"]
 referenced_by: []
 compatibility: Backward Compatible
 since: 1.0

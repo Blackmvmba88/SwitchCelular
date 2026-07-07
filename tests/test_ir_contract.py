@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.cli import load_ir
-from tooling.peripheralos.generator import emit_ir_schema
+from tooling.peripheralos.generator import emit_binding_stubs, emit_ir_schema
 from tooling.peripheralos.validator import validate_specs
 
 
@@ -42,6 +42,13 @@ class IRContractTests(unittest.TestCase):
         ir = load_ir(ROOT / "platform" / "spec")
         data = json.loads(golden.read_text(encoding="utf-8"))
         self.assertEqual(data, emit_ir_schema(ir))
+
+    def test_binding_golden_directories_exist(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        bindings = emit_binding_stubs(ir)
+        for language in bindings:
+            golden_dir = ROOT / "platform" / "tests" / "golden" / "ir" / "bindings" / language
+            self.assertTrue(golden_dir.exists(), golden_dir)
 
 
 if __name__ == "__main__":
