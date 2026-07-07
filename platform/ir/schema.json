@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "index": {
+      "properties": {
+        "specs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "specs"
+      ],
+      "type": "object"
+    },
+    "protocol": {
+      "const": "blackmamba.platform.ir.v1"
+    },
+    "specs": {
+      "items": {
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "header": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "header",
+          "body"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "protocol",
+    "index",
+    "specs"
+  ],
+  "title": "PeripheralOS Platform IR v1",
+  "type": "object"
+}

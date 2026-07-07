@@ -23,6 +23,10 @@ specs:
     file: 0010-capabilities.md
   - id: SPEC-0011
     file: 0011-extension-model.md
+  - id: SPEC-0012
+    file: 0012-generator.md
+  - id: SPEC-0013
+    file: 0013-canonical-ir.md
 canonical_contracts:
   - id: peripheralos.abi.v1
     file: abi-v1.yaml
@@ -59,5 +63,3 @@ validation:
   conformance_tests: platform/tests/conformance/
   compatibility_tests: platform/tests/compatibility/
   rule: Implementations must conform to canonical contracts and must not redefine them.
-  - id: SPEC-0012
-    file: 0012-generator.md

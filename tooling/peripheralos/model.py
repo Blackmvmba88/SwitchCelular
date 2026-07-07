@@ -48,6 +48,6 @@ class ValidationReport:
 
 @dataclass(frozen=True)
 class PlatformIR:
+    protocol: str
     specs: list[SpecDocument]
     index: dict[str, Any]
-

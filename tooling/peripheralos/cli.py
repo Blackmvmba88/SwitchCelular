@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .generator import emit_json_schema, emit_manifest, write_json
+from .generator import emit_ir_schema, emit_json_schema, emit_manifest, write_json
 from .model import PlatformIR
 from .parser import parse_spec
 from .validator import validate_specs
@@ -14,7 +14,7 @@ def load_ir(spec_dir: Path) -> PlatformIR:
     specs = sorted(spec_dir.glob("*.md"))
     parsed = [parse_spec(path) for path in specs]
     index = {"specs": [spec.header.id for spec in parsed]}
-    return PlatformIR(specs=parsed, index=index)
+    return PlatformIR(protocol="blackmamba.platform.ir.v1", specs=parsed, index=index)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -33,9 +33,11 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = Path(args.out_dir)
     write_json(out_dir / "schema.json", emit_json_schema(ir))
     write_json(out_dir / "manifest.json", emit_manifest(ir))
+    write_json(out_dir / "ir-schema.json", emit_ir_schema(ir))
     write_json(
         out_dir / "ir.json",
         {
+            "protocol": ir.protocol,
             "index": ir.index,
             "specs": [
                 {
@@ -64,4 +66,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

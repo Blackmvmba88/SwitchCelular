@@ -1,0 +1,351 @@
+{
+  "index": {
+    "specs": [
+      "SPEC-0000",
+      "SPEC-0001",
+      "SPEC-0002",
+      "SPEC-0003",
+      "SPEC-0004",
+      "SPEC-0005",
+      "SPEC-0006",
+      "SPEC-0007",
+      "SPEC-0008",
+      "SPEC-0009",
+      "SPEC-0010",
+      "SPEC-0011",
+      "SPEC-0012",
+      "SPEC-0013"
+    ]
+  },
+  "protocol": "blackmamba.platform.ir.v1",
+  "specs": [
+    {
+      "body": "# Spec 0000: Platform\n\n## Status\n\nStable\n\n## Purpose\n\nDefine PeripheralOS as a platform for programmable peripherals.\n\n## Scope\n\n- platform identity\n- governance boundaries\n- contract hierarchy\n- implementation boundaries\n\n## Non-Goals\n\n- device-specific behavior\n- application-specific behavior\n- transport implementation details",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [],
+        "id": "SPEC-0000",
+        "owner": "Platform Core",
+        "referenced_by": [
+          "SPEC-0001"
+        ],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "platform",
+          "governance"
+        ],
+        "title": "Platform",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0001: Architecture\n\n## Status\n\nStable\n\n## Purpose\n\nDefine the top-level architecture of PeripheralOS.\n\n## Layers\n\n- normative\n- evolution\n- execution\n\n## Requirements\n\n- separate standards from implementations\n- keep core device-agnostic\n- keep contracts versioned\n- keep ownership explicit",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0000"
+        ],
+        "id": "SPEC-0001",
+        "owner": "Platform Core",
+        "referenced_by": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0004",
+          "SPEC-0005",
+          "SPEC-0006",
+          "SPEC-0007",
+          "SPEC-0008",
+          "SPEC-0009",
+          "SPEC-0010",
+          "SPEC-0011"
+        ],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "architecture"
+        ],
+        "title": "Architecture",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0002: Peripheral ABI\n\n## Status\n\nStable\n\n## Purpose\n\nDefine the canonical contract used by all PeripheralOS devices.\n\n## Sections\n\n- identity\n- capabilities\n- sensors\n- actions\n- diagnostics\n- extensions\n\n## Requirements\n\n- single source of truth\n- versioned schema\n- language-neutral\n- generated bindings only",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0001",
+          "SPEC-0009",
+          "SPEC-0010",
+          "SPEC-0011"
+        ],
+        "id": "SPEC-0002",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "abi",
+          "peripheral",
+          "runtime"
+        ],
+        "title": "Peripheral ABI",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0003: Runtime\n\n## Status\n\nStable\n\n## Purpose\n\nDefine the runtime responsibilities of PeripheralOS.\n\n## Responsibilities\n\n- lifecycle management\n- configuration\n- validation\n- diagnostics\n- plugin orchestration\n- transport mediation\n\n## Non-Goals\n\n- device-specific rules\n- application-specific rules",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0001",
+          "SPEC-0002",
+          "SPEC-0005",
+          "SPEC-0007",
+          "SPEC-0009"
+        ],
+        "id": "SPEC-0003",
+        "owner": "Runtime",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "runtime"
+        ],
+        "title": "Runtime",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0004: Device Model\n\n## Status\n\nStable\n\n## Purpose\n\nDefine what a device is in PeripheralOS.\n\n## Device Requirements\n\n- identity\n- capabilities\n- lifecycle\n- diagnostics\n- health\n- extension support",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003"
+        ],
+        "id": "SPEC-0004",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "device"
+        ],
+        "title": "Device Model",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0005: Plugin Model\n\n## Status\n\nStable\n\n## Purpose\n\nDefine how plugins integrate with PeripheralOS.\n\n## Lifecycle\n\n- load\n- initialize\n- advertise capabilities\n- run\n- health check\n- shutdown",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0004"
+        ],
+        "id": "SPEC-0005",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "plugin"
+        ],
+        "title": "Plugin Model",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0006: Action Model\n\n## Status\n\nStable\n\n## Purpose\n\nDefine the abstract action vocabulary used by PeripheralOS.\n\n## Examples\n\n- primary action\n- secondary action\n- aim\n- interact\n- navigate\n- confirm\n- cancel\n- rotate\n- translate\n- zoom",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003"
+        ],
+        "id": "SPEC-0006",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "action"
+        ],
+        "title": "Action Model",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0007: Transport Model\n\n## Status\n\nStable\n\n## Purpose\n\nDefine transport as a replaceable concern.\n\n## Transport Examples\n\n- UDP\n- TCP\n- BLE\n- USB\n- WebRTC\n- Serial",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0009"
+        ],
+        "id": "SPEC-0007",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "transport"
+        ],
+        "title": "Transport Model",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0008: Runtime Lifecycle\n\n## Status\n\nStable\n\n## Purpose\n\nDefine the canonical lifecycle for devices and plugins.\n\n## Lifecycle\n\n- discover\n- pair\n- authenticate\n- handshake\n- capabilities\n- ready\n- streaming\n- disconnected\n- reconnect",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0005"
+        ],
+        "id": "SPEC-0008",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "lifecycle"
+        ],
+        "title": "Runtime Lifecycle",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0009: Security\n\n## Status\n\nStable\n\n## Purpose\n\nDefine the security model for PeripheralOS.\n\n## Requirements\n\n- explicit trust boundaries\n- authenticated device pairing\n- transport-aware validation\n- least privilege by default\n- no hidden architecture",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0001"
+        ],
+        "id": "SPEC-0009",
+        "owner": "Security",
+        "referenced_by": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0007"
+        ],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "security"
+        ],
+        "title": "Security",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0010: Capabilities\n\n## Status\n\nStable\n\n## Purpose\n\nDefine how devices advertise what they can do.\n\n## Capability Classes\n\n- sensors\n- actions\n- diagnostics\n- extensions\n- transport support",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0004"
+        ],
+        "id": "SPEC-0010",
+        "owner": "Platform Core",
+        "referenced_by": [
+          "SPEC-0002"
+        ],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "capabilities"
+        ],
+        "title": "Capabilities",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0011: Extension Model\n\n## Status\n\nStable\n\n## Purpose\n\nDefine how PeripheralOS grows without changing the Core.\n\n## Requirements\n\n- extensible without core changes\n- versioned extension contracts\n- explicit compatibility declarations",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0005"
+        ],
+        "id": "SPEC-0011",
+        "owner": "Platform Core",
+        "referenced_by": [
+          "SPEC-0002"
+        ],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "extension"
+        ],
+        "title": "Extension Model",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0012: Generator\n\n## Status\n\nFrozen\n\n## Purpose\n\nDefine the specification compiler that turns platform specs into a canonical AST and derived artifacts.\n\n## Pipeline\n\n- Parser\n- Semantic Validation\n- Platform IR\n- Emitters\n- Conformance\n- Compatibility Reports\n\n## Requirements\n\n- deterministic output\n- single source of truth\n- no handwritten bindings\n- no direct implementation-to-implementation generation\n",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0003",
+          "SPEC-0011"
+        ],
+        "id": "SPEC-0012",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "generator",
+          "ast",
+          "compiler"
+        ],
+        "title": "Generator",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "body": "# Spec 0013: Canonical AST / Platform IR\n\n## Status\n\nFrozen\n\n## Purpose\n\nDefine the canonical internal representation used by the generator to transform specifications into derived artifacts.\n\n## Contract\n\nThe Platform IR is the semantic representation between parsing and emission.\n\nIt must be:\n\n- versioned\n- deterministic\n- language-neutral\n- stable enough for code generation and conformance\n\n## Required Fields\n\n- protocol\n- index\n- specs\n\n## Required Spec Node Fields\n\n- header\n- body\n\n## Validation Rules\n\n- The IR protocol must be explicit.\n- The IR must preserve spec ordering.\n- The IR must derive from `platform/spec/index.yaml` and the spec files.\n- No emitter may become a source of truth.\n",
+      "header": {
+        "compatibility": "Backward Compatible",
+        "depends_on": [
+          "SPEC-0002",
+          "SPEC-0012"
+        ],
+        "id": "SPEC-0013",
+        "owner": "Platform Core",
+        "referenced_by": [],
+        "since": "1.0",
+        "status": "Frozen",
+        "supersedes": null,
+        "tags": [
+          "ast",
+          "ir",
+          "contract",
+          "compiler"
+        ],
+        "title": "Canonical AST / Platform IR",
+        "version": "1.0.0"
+      }
+    }
+  ]
+}

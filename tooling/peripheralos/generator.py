@@ -29,7 +29,39 @@ def emit_manifest(ir: PlatformIR) -> dict:
     }
 
 
+def emit_ir_schema(ir: PlatformIR) -> dict:
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "PeripheralOS Platform IR v1",
+        "type": "object",
+        "required": ["protocol", "index", "specs"],
+        "properties": {
+            "protocol": {"const": ir.protocol},
+            "index": {
+                "type": "object",
+                "properties": {
+                    "specs": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                    }
+                },
+                "required": ["specs"],
+            },
+            "specs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["header", "body"],
+                    "properties": {
+                        "header": {"type": "object"},
+                        "body": {"type": "string"},
+                    },
+                },
+            },
+        },
+    }
+
+
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
