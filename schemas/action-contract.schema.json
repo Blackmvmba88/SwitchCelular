@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://peripheralos.dev/schemas/action-contract.schema.json",
+  "title": "PeripheralOS Action Contract",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "input_schema",
+    "output_schema",
+    "permissions",
+    "side_effects",
+    "errors"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "input_schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "output_schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "side_effects": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "none",
+          "read_device_state",
+          "write_device_state",
+          "physical_motion",
+          "light_emission",
+          "audio_output",
+          "network_io",
+          "persistent_storage",
+          "external_system_change"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message", "recoverable"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "recoverable": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "idempotent": {
+      "type": "boolean"
+    },
+    "transport_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  }
+}
