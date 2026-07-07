@@ -1,0 +1,107 @@
+id: peripheralos.transport.model
+version: 0.1.0
+status: draft
+authority: platform/spec/index.yaml
+
+summary: >
+  Defines how PeripheralOS transports move actions, events, telemetry, and state
+  between runtimes, devices, plugins, and controllers.
+
+transport_contract:
+  required_fields:
+    id:
+      type: string
+      description: Stable transport identifier.
+    name:
+      type: string
+      description: Human-readable transport name.
+    version:
+      type: semver
+      description: Transport contract version.
+    medium:
+      type: enum
+      values:
+        - usb
+        - ble
+        - wifi
+        - serial
+        - midi
+        - dmx_bridge
+        - local_ipc
+        - custom
+    framing:
+      type: object
+      description: Message framing contract.
+    delivery:
+      type: object
+      description: Delivery guarantees.
+    timeout_behavior:
+      type: object
+      description: Timeout and retry behavior.
+    errors:
+      type: array
+      items: object
+      description: Structured transport errors.
+    trust_level:
+      type: enum
+      values:
+        - trusted_local
+        - trusted_pairing
+        - untrusted_local
+        - untrusted_remote
+
+rules:
+  - Transports must declare trust level.
+  - Transports must define framing boundaries.
+  - Transports must define timeout behavior.
+  - Transports must return structured errors.
+  - Transports must not bypass action permission checks.
+  - Runtime must not treat transport success as action success.
+
+message_types:
+  - action_request
+  - action_response
+  - event
+  - telemetry
+  - capability_advertisement
+  - lifecycle_signal
+  - error
+
+minimum_error_fields:
+  - code
+  - transport_id
+  - message
+  - recoverable
+  - retryable
+
+candidate_transports:
+  usb:
+    default_trust_level: trusted_local
+  ble:
+    default_trust_level: trusted_pairing
+  wifi:
+    default_trust_level: untrusted_remote
+  serial:
+    default_trust_level: trusted_local
+  midi:
+    default_trust_level: untrusted_local
+  dmx_bridge:
+    default_trust_level: untrusted_local
+  local_ipc:
+    default_trust_level: trusted_local
+
+compatibility:
+  breaking_changes:
+    - changing framing semantics
+    - changing timeout behavior incompatibly
+    - removing structured error fields
+    - changing trust level without review
+    - bypassing permission enforcement expectations
+  non_breaking_changes:
+    - adding optional telemetry
+    - adding a new transport medium
+    - adding optional retry metadata
+
+ownership:
+  source_of_truth: platform/spec/transport-model.yaml
+  issue: "[M0] Define transport and security model"
