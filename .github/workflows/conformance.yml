@@ -1,0 +1,32 @@
+name: PeripheralOS Conformance
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate platform contracts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install validation dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run PeripheralOS validation CLI
+        run: python platform/generator/peripheralos_validate.py all
+
+      - name: Run conformance tests
+        run: pytest platform/tests/conformance
