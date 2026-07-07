@@ -1,0 +1,70 @@
+id: peripheralos.abi.v1
+version: 1.0.0
+status: draft
+authority: platform/spec/index.yaml
+
+summary: >
+  Defines the PeripheralOS ABI v1 contract used by runtimes, plugins,
+  transports, generated bindings, and device implementations.
+
+principles:
+  - ABI fields are explicit and versioned.
+  - Required fields must not be removed without a breaking-change review.
+  - Implementations consume ABI contracts and do not redefine them.
+  - Generated bindings must be reproducible from this contract.
+
+required_fields:
+  id:
+    type: string
+    description: Stable contract identifier.
+  version:
+    type: semver
+    description: ABI contract version.
+  kind:
+    type: string
+    description: Contract kind such as plugin, action, transport, runtime, or device.
+  capabilities:
+    type: array
+    items: string
+    description: Declared platform capabilities.
+  compatibility:
+    type: object
+    description: Supported ABI and platform version ranges.
+  permissions:
+    type: array
+    items: string
+    description: Explicit permission requirements.
+
+optional_fields:
+  metadata:
+    type: object
+    description: Human-readable metadata that must not affect runtime behavior unless specified elsewhere.
+  generated:
+    type: object
+    description: Generator metadata for derived bindings.
+  experimental:
+    type: object
+    description: Non-stable extension area gated by compatibility policy.
+
+compatibility_rules:
+  breaking_changes:
+    - removing a required field
+    - changing the type of a required field
+    - changing permission semantics
+    - changing lifecycle ordering expectations
+    - weakening validation behavior
+  non_breaking_changes:
+    - adding optional metadata fields
+    - adding new capabilities behind explicit negotiation
+    - adding experimental fields under the experimental namespace
+
+validation:
+  valid_fixture_required: true
+  invalid_fixture_required: true
+  compatibility_report_required_for_breaking_change: true
+
+ownership:
+  source_of_truth: platform/spec/abi-v1.yaml
+  tests:
+    - platform/tests/conformance/
+    - platform/tests/compatibility/
