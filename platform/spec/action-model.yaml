@@ -1,0 +1,93 @@
+id: peripheralos.action.model
+version: 0.1.0
+status: draft
+authority: platform/spec/index.yaml
+
+summary: >
+  Defines the PeripheralOS command surface. Actions are validated, permissioned,
+  dispatchable units of behavior.
+
+action_contract:
+  required_fields:
+    id:
+      type: string
+      description: Stable action identifier.
+    name:
+      type: string
+      description: Human-readable action name.
+    version:
+      type: semver
+      description: Action contract version.
+    input_schema:
+      type: schema_ref
+      description: Schema reference for action input.
+    output_schema:
+      type: schema_ref
+      description: Schema reference for action output.
+    permissions:
+      type: array
+      items: string
+      description: Permissions required to invoke the action.
+    side_effects:
+      type: array
+      items: string
+      description: Declared possible side effects.
+    errors:
+      type: array
+      items: object
+      description: Structured error codes the action may return.
+
+  optional_fields:
+    timeout_ms:
+      type: integer
+      description: Maximum execution time before timeout behavior applies.
+    idempotent:
+      type: boolean
+      description: Whether repeated execution with same input is safe.
+    transport_requirements:
+      type: array
+      items: string
+      description: Required transport capabilities.
+
+rules:
+  - Actions must have input and output schemas.
+  - Actions must declare side effects.
+  - Actions must declare permission requirements.
+  - Actions must return structured errors.
+  - Runtime dispatch must validate input before execution.
+  - Runtime dispatch must validate output before returning success.
+
+side_effect_classes:
+  - none
+  - read_device_state
+  - write_device_state
+  - physical_motion
+  - light_emission
+  - audio_output
+  - network_io
+  - persistent_storage
+  - external_system_change
+
+error_contract:
+  required_fields:
+    - code
+    - action_id
+    - message
+    - recoverable
+    - phase
+
+compatibility:
+  breaking_changes:
+    - removing a required input field
+    - changing input or output type incompatibly
+    - removing an error code relied on by callers
+    - changing side effect behavior
+    - weakening permission checks
+  non_breaking_changes:
+    - adding optional input fields
+    - adding additional structured error codes
+    - increasing metadata detail
+
+ownership:
+  source_of_truth: platform/spec/action-model.yaml
+  issue: "[M0] Define plugin and action model"
