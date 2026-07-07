@@ -1,0 +1,29 @@
+{
+  "id": "peripheralos.plugin.example-led",
+  "name": "Example LED Plugin",
+  "version": "0.1.0",
+  "abi": ">=1.0.0 <2.0.0",
+  "capabilities": [
+    "led.output",
+    "led.rgb"
+  ],
+  "permissions": [
+    "device.write.led"
+  ],
+  "actions": [
+    "led.set_color"
+  ],
+  "transports": [
+    "serial"
+  ],
+  "lifecycle_hooks": [
+    "validate",
+    "load",
+    "start",
+    "stop",
+    "unload"
+  ],
+  "metadata": {
+    "description": "Example conforming LED plugin manifest."
+  }
+}
