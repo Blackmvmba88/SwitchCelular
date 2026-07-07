@@ -1,0 +1,87 @@
+id: peripheralos.plugin.model
+version: 0.1.0
+status: draft
+authority: platform/spec/index.yaml
+
+summary: >
+  Defines how plugins extend PeripheralOS without mutating the core platform.
+
+plugin_manifest:
+  required_fields:
+    id:
+      type: string
+      description: Stable plugin identifier.
+    name:
+      type: string
+      description: Human-readable plugin name.
+    version:
+      type: semver
+      description: Plugin version.
+    abi:
+      type: semver_range
+      description: Supported PeripheralOS ABI range.
+    capabilities:
+      type: array
+      items: string
+      description: Capabilities exposed by the plugin.
+    permissions:
+      type: array
+      items: string
+      description: Permissions required before plugin activation.
+    actions:
+      type: array
+      items: string
+      description: Action identifiers implemented by the plugin.
+
+  optional_fields:
+    transports:
+      type: array
+      items: string
+      description: Transport identifiers supported by the plugin.
+    lifecycle_hooks:
+      type: array
+      items: string
+      description: Runtime lifecycle hooks implemented by the plugin.
+    metadata:
+      type: object
+      description: Non-normative display metadata.
+
+rules:
+  - Plugins must declare capabilities explicitly.
+  - Plugins must not execute before ABI and permission validation.
+  - Plugins must not mutate platform specifications at runtime.
+  - Plugins must not register actions without schemas.
+  - Plugins must fail closed when required permissions are missing.
+
+lifecycle_binding:
+  required_hooks:
+    - validate
+  optional_hooks:
+    - discover
+    - load
+    - configure
+    - start
+    - observe
+    - stop
+    - unload
+
+compatibility:
+  breaking_changes:
+    - removing a declared action
+    - changing required permissions without compatibility review
+    - changing action input or output contract incompatibly
+    - changing capability semantics
+  non_breaking_changes:
+    - adding optional metadata
+    - adding new capability behind negotiation
+    - adding a new action with its own schema
+
+security:
+  default_trust_level: untrusted
+  requires_permission_validation: true
+  requires_capability_negotiation: true
+  must_fail_closed: true
+
+ownership:
+  source_of_truth: platform/spec/plugin-model.yaml
+  issue: "[M0] Define plugin and action model"
