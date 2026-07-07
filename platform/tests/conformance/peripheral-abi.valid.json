@@ -1,0 +1,16 @@
+{
+  "protocol": "blackmamba.peripheral.abi.v1",
+  "identity": {
+    "device_id": "android-motion-001",
+    "manufacturer": "BlackMamba",
+    "model": "Reference Motion Device",
+    "version": "1.0.0"
+  },
+  "capabilities": {
+    "sensors": ["gyroscope", "accelerometer", "magnetometer"],
+    "actions": ["primary_action", "secondary_action", "aim"],
+    "diagnostics": ["battery", "latency", "confidence"],
+    "extensions": []
+  }
+}
+

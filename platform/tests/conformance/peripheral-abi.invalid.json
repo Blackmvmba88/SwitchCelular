@@ -1,0 +1,8 @@
+{
+  "protocol": "blackmamba.peripheral.abi.v1",
+  "identity": {
+    "device_id": "",
+    "manufacturer": "BlackMamba"
+  }
+}
+

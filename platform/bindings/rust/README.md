@@ -1,0 +1,6 @@
+# Rust Bindings
+
+AUTO-GENERATED
+
+DO NOT EDIT
+
