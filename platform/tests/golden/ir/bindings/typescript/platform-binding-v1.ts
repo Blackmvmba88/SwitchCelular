@@ -1,0 +1,12 @@
+// AUTO-GENERATED. DO NOT EDIT.
+// protocol: blackmamba.platform.ir.v1
+
+export interface PlatformBinding {
+  protocol: string;
+  specIds: string[];
+}
+
+export const PLATFORM_BINDING: PlatformBinding = {
+  protocol: "blackmamba.platform.ir.v1",
+  specIds: ["SPEC-0000", "SPEC-0001", "SPEC-0002", "SPEC-0003", "SPEC-0004", "SPEC-0005", "SPEC-0006", "SPEC-0007", "SPEC-0008", "SPEC-0009", "SPEC-0010", "SPEC-0011", "SPEC-0012", "SPEC-0013"],
+};

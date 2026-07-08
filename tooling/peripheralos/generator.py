@@ -47,6 +47,84 @@ def emit_binding_stubs(ir: PlatformIR) -> dict[str, dict]:
     }
 
 
+def emit_rust_binding(ir: PlatformIR) -> str:
+    spec_ids = ",\n        ".join(f'"{spec.header.id}"' for spec in ir.specs)
+    return (
+        "// AUTO-GENERATED. DO NOT EDIT.\n"
+        f"// protocol: {ir.protocol}\n\n"
+        "#[derive(Debug, Clone, PartialEq, Eq)]\n"
+        "pub struct PlatformBinding {\n"
+        "    pub protocol: &'static str,\n"
+        "    pub spec_ids: &'static [&'static str],\n"
+        "}\n\n"
+        "pub const PLATFORM_BINDING: PlatformBinding = PlatformBinding {\n"
+        f"    protocol: \"{ir.protocol}\",\n"
+        "    spec_ids: &[\n"
+        f"        {spec_ids}\n"
+        "    ],\n"
+        "};\n"
+    )
+
+
+def emit_kotlin_binding(ir: PlatformIR) -> str:
+    spec_ids = ", ".join(f'\"{spec.header.id}\"' for spec in ir.specs)
+    return (
+        "// AUTO-GENERATED. DO NOT EDIT.\n"
+        f"// protocol: {ir.protocol}\n\n"
+        "data class PlatformBinding(\n"
+        "    val protocol: String,\n"
+        "    val specIds: List<String>,\n"
+        ")\n\n"
+        "val PLATFORM_BINDING = PlatformBinding(\n"
+        f"    protocol = \"{ir.protocol}\",\n"
+        f"    specIds = listOf({spec_ids}),\n"
+        ")\n"
+    )
+
+
+def emit_typescript_binding(ir: PlatformIR) -> str:
+    spec_ids = ", ".join(f'\"{spec.header.id}\"' for spec in ir.specs)
+    return (
+        "// AUTO-GENERATED. DO NOT EDIT.\n"
+        f"// protocol: {ir.protocol}\n\n"
+        "export interface PlatformBinding {\n"
+        "  protocol: string;\n"
+        "  specIds: string[];\n"
+        "}\n\n"
+        "export const PLATFORM_BINDING: PlatformBinding = {\n"
+        f"  protocol: \"{ir.protocol}\",\n"
+        f"  specIds: [{spec_ids}],\n"
+        "};\n"
+    )
+
+
+def emit_python_binding(ir: PlatformIR) -> str:
+    spec_ids = ", ".join(repr(spec.header.id) for spec in ir.specs)
+    return (
+        "# AUTO-GENERATED. DO NOT EDIT.\n"
+        f"# protocol: {ir.protocol}\n\n"
+        "from dataclasses import dataclass\n"
+        "from typing import Tuple\n\n"
+        "@dataclass(frozen=True)\n"
+        "class PlatformBinding:\n"
+        "    protocol: str\n"
+        "    spec_ids: Tuple[str, ...]\n\n"
+        "PLATFORM_BINDING = PlatformBinding(\n"
+        f"    protocol=\"{ir.protocol}\",\n"
+        f"    spec_ids=({spec_ids}),\n"
+        ")\n"
+    )
+
+
+def emit_language_bindings(ir: PlatformIR) -> dict[str, str]:
+    return {
+        "rust": emit_rust_binding(ir),
+        "kotlin": emit_kotlin_binding(ir),
+        "typescript": emit_typescript_binding(ir),
+        "python": emit_python_binding(ir),
+    }
+
+
 def emit_ir_schema(ir: PlatformIR) -> dict:
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",

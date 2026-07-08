@@ -50,4 +50,3 @@ It must be:
 - The IR must preserve spec ordering.
 - The IR must derive from `platform/spec/index.yaml` and the spec files.
 - No emitter may become a source of truth.
-

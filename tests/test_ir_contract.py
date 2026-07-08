@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.cli import load_ir
-from tooling.peripheralos.generator import emit_binding_stubs, emit_ir_schema
+from tooling.peripheralos.generator import emit_binding_stubs, emit_ir_schema, emit_language_bindings
 from tooling.peripheralos.validator import validate_specs
 
 
@@ -49,6 +49,14 @@ class IRContractTests(unittest.TestCase):
         for language in bindings:
             golden_dir = ROOT / "platform" / "tests" / "golden" / "ir" / "bindings" / language
             self.assertTrue(golden_dir.exists(), golden_dir)
+
+    def test_binding_golden_sources_match_generator(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        sources = emit_language_bindings(ir)
+        extensions = {"rust": "rs", "kotlin": "kt", "typescript": "ts", "python": "py"}
+        for language, source in sources.items():
+            golden = ROOT / "platform" / "tests" / "golden" / "ir" / "bindings" / language / f"platform-binding-v1.{extensions[language]}"
+            self.assertEqual(golden.read_text(encoding="utf-8"), source)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,28 @@
+// AUTO-GENERATED. DO NOT EDIT.
+// protocol: blackmamba.platform.ir.v1
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PlatformBinding {
+    pub protocol: &'static str,
+    pub spec_ids: &'static [&'static str],
+}
+
+pub const PLATFORM_BINDING: PlatformBinding = PlatformBinding {
+    protocol: "blackmamba.platform.ir.v1",
+    spec_ids: &[
+        "SPEC-0000",
+        "SPEC-0001",
+        "SPEC-0002",
+        "SPEC-0003",
+        "SPEC-0004",
+        "SPEC-0005",
+        "SPEC-0006",
+        "SPEC-0007",
+        "SPEC-0008",
+        "SPEC-0009",
+        "SPEC-0010",
+        "SPEC-0011",
+        "SPEC-0012",
+        "SPEC-0013"
+    ],
+};

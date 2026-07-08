@@ -1,13 +1,12 @@
 from pathlib import Path
 import sys
 import unittest
-import json
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.cli import load_ir
-from tooling.peripheralos.generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_manifest
+from tooling.peripheralos.generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_language_bindings, emit_manifest
 from tooling.peripheralos.validator import compatibility_report, validate_specs
 
 
@@ -37,6 +36,15 @@ class GeneratorTests(unittest.TestCase):
         report = emit_compatibility_report(ir)
         self.assertEqual(report["protocol"], ir.protocol)
         self.assertEqual(report["status"], "compatible")
+
+    def test_language_binding_sources_exist(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        bindings = emit_language_bindings(ir)
+        self.assertEqual(set(bindings), {"rust", "kotlin", "typescript", "python"})
+        self.assertIn("pub const PLATFORM_BINDING", bindings["rust"])
+        self.assertIn("val PLATFORM_BINDING", bindings["kotlin"])
+        self.assertIn("export const PLATFORM_BINDING", bindings["typescript"])
+        self.assertIn("PLATFORM_BINDING = PlatformBinding(", bindings["python"])
 
     def test_compatibility_report_available(self):
         ir = load_ir(ROOT / "platform" / "spec")
