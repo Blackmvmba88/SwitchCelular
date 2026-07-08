@@ -67,7 +67,7 @@ class IRContractTests(unittest.TestCase):
 
     def test_compatibility_golden_matches_generator(self):
         ir = load_ir(ROOT / "platform" / "spec")
-        golden = ROOT / "platform" / "tests" / "golden" / "ir" / "compatibility" / "spec-0012-to-0013.json"
+        golden = ROOT / "platform" / "tests" / "golden" / "ir" / "compatibility" / "spec-0013-to-0014.json"
         self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), compare_specs(ir.specs[-2], ir.specs[-1]))
 
 

@@ -1,0 +1,29 @@
+{
+  "changes": [
+    {
+      "breaking": false,
+      "field": "tags",
+      "new": [
+        "virtualization",
+        "testing",
+        "harness",
+        "motor"
+      ],
+      "old": [
+        "ast",
+        "ir",
+        "contract",
+        "compiler"
+      ]
+    },
+    {
+      "breaking": false,
+      "field": "body",
+      "new": "# Spec 0014: Virtual Motor / Test Harness\n\n## Status\n\nFrozen\n\n## Purpose\n\nDefine the deterministic virtual execution layer used to generate real platform tests without physical hardware.\n\n## Contract\n\nThe virtual motor must:\n\n- consume canonical IR and scenario fixtures\n- produce deterministic traces\n- simulate latency and noise\n- expose diagnostics\n- run without physical devices\n\n## Required Outputs\n\n- virtual trace\n- diagnostics report\n- compatibility snapshot\n\n## Validation Rules\n\n- deterministic for the same seed and scenario\n- stable schema\n- reproducible trace output\n",
+      "old": "# Spec 0013: Canonical AST / Platform IR\n\n## Status\n\nFrozen\n\n## Purpose\n\nDefine the canonical internal representation used by the generator to transform specifications into derived artifacts.\n\n## Contract\n\nThe Platform IR is the semantic representation between parsing and emission.\n\nIt must be:\n\n- versioned\n- deterministic\n- language-neutral\n- stable enough for code generation and conformance\n\n## Required Fields\n\n- protocol\n- index\n- specs\n\n## Required Spec Node Fields\n\n- header\n- body\n\n## Validation Rules\n\n- The IR protocol must be explicit.\n- The IR must preserve spec ordering.\n- The IR must derive from `platform/spec/index.yaml` and the spec files.\n- No emitter may become a source of truth."
+    }
+  ],
+  "new": "SPEC-0014",
+  "old": "SPEC-0013",
+  "overall": "compatible"
+}

@@ -27,6 +27,8 @@ specs:
     file: 0012-generator.md
   - id: SPEC-0013
     file: 0013-canonical-ir.md
+  - id: SPEC-0014
+    file: 0014-virtual-motor.md
 canonical_contracts:
   - id: peripheralos.abi.v1
     file: abi-v1.yaml
