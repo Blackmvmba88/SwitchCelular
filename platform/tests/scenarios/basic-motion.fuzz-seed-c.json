@@ -1,0 +1,33 @@
+{
+  "frames": [
+    {
+      "buttons": {
+        "primary_action": true
+      },
+      "confidence": 0.97,
+      "diagnostics": {
+        "fuzz_seed": "seed-c"
+      },
+      "orientation": {
+        "pitch": 0.1,
+        "roll": 0.0,
+        "yaw": 0.0
+      }
+    },
+    {
+      "buttons": {
+        "primary_action": false
+      },
+      "confidence": 1.0,
+      "diagnostics": {
+        "fuzz_seed": "seed-c"
+      },
+      "orientation": {
+        "pitch": 0.1,
+        "roll": 0.0,
+        "yaw": 0.2
+      }
+    }
+  ],
+  "name": "basic-motion-fuzz-seed-c"
+}

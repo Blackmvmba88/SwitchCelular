@@ -29,6 +29,8 @@ specs:
     file: 0013-canonical-ir.md
   - id: SPEC-0014
     file: 0014-virtual-motor.md
+  - id: SPEC-0015
+    file: 0015-virtual-campaigns.md
 canonical_contracts:
   - id: peripheralos.abi.v1
     file: abi-v1.yaml

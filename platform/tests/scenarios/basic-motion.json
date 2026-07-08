@@ -1,0 +1,25 @@
+{
+  "name": "basic-motion",
+  "frames": [
+    {
+      "orientation": {
+        "yaw": 0.0,
+        "pitch": 0.1,
+        "roll": 0.0
+      },
+      "buttons": {
+        "primary_action": true
+      }
+    },
+    {
+      "orientation": {
+        "yaw": 0.2,
+        "pitch": 0.1,
+        "roll": 0.0
+      },
+      "buttons": {
+        "primary_action": false
+      }
+    }
+  ]
+}

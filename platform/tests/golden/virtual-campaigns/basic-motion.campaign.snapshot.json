@@ -1,0 +1,20 @@
+{
+  "protocol": "blackmamba.virtual.campaign.v1",
+  "result_count": 2,
+  "results": [
+    {
+      "frame_count": 2,
+      "protocol": "blackmamba.virtual.motor.v1",
+      "scenario": "basic-motion",
+      "trace_hash": "5f81e250c890b2856f84151664817961e88d944c06058ac8f4919312b321c708",
+      "trace_path": "traces/basic-motion.trace.json"
+    },
+    {
+      "frame_count": 2,
+      "protocol": "blackmamba.virtual.motor.v1",
+      "scenario": "basic-motion-fuzz-seed-a",
+      "trace_hash": "073a3f68677a5dc3603968dff3da8e17bab7933132fb1fb3a825b201ae9a78da",
+      "trace_path": "traces/basic-motion-fuzz-seed-a.trace.json"
+    }
+  ]
+}

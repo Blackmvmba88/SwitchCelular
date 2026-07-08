@@ -6,6 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from tooling.peripheralos.campaigns import CampaignScenario, fuzz_scenario, run_campaign
 from tooling.peripheralos.harness import run_harness
 from tooling.peripheralos.simulator import VirtualMotorConfig, load_scenario, run_virtual_motor
 
@@ -29,7 +30,27 @@ class VirtualMotorTests(unittest.TestCase):
         self.assertEqual(data["scenario"], "basic-motion")
         self.assertEqual(summary["frame_count"], 2)
 
+    def test_fuzzed_scenario_is_reproducible(self):
+        source = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        fuzz_a = fuzz_scenario(source, "seed-a")
+        fuzz_b = fuzz_scenario(source, "seed-a")
+        self.assertEqual(fuzz_a.read_text(encoding="utf-8"), fuzz_b.read_text(encoding="utf-8"))
+
+    def test_campaign_runner_writes_snapshot(self):
+        out_dir = ROOT / "platform" / "generated" / "campaigns"
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        snapshot = run_campaign([CampaignScenario(path=scenario), CampaignScenario(path=fuzz_scenario(scenario, "seed-c"))], out_dir)
+        self.assertEqual(snapshot["protocol"], "blackmamba.virtual.campaign.v1")
+        self.assertEqual(snapshot["result_count"], 2)
+        self.assertTrue((out_dir / "campaign.snapshot.json").exists())
+
+    def test_campaign_golden_snapshot_matches(self):
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        fuzzed = fuzz_scenario(scenario, "seed-a")
+        snapshot = run_campaign([CampaignScenario(path=scenario), CampaignScenario(path=fuzzed, seed="seed-a")], ROOT / "platform" / "generated" / "campaigns-golden-check")
+        golden = ROOT / "platform" / "tests" / "golden" / "virtual-campaigns" / "basic-motion.campaign.snapshot.json"
+        self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), snapshot)
+
 
 if __name__ == "__main__":
     unittest.main()
-
