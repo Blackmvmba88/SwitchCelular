@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.cli import load_ir
-from tooling.peripheralos.generator import emit_binding_stubs, emit_ir_schema, emit_language_bindings
+from tooling.peripheralos.generator import emit_binding_stubs, emit_ir_schema, emit_language_bindings, emit_language_schemas, compare_specs
 from tooling.peripheralos.validator import validate_specs
 
 
@@ -57,6 +57,18 @@ class IRContractTests(unittest.TestCase):
         for language, source in sources.items():
             golden = ROOT / "platform" / "tests" / "golden" / "ir" / "bindings" / language / f"platform-binding-v1.{extensions[language]}"
             self.assertEqual(golden.read_text(encoding="utf-8"), source)
+
+    def test_binding_golden_schemas_match_generator(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        schemas = emit_language_schemas(ir)
+        for language, schema in schemas.items():
+            golden = ROOT / "platform" / "tests" / "golden" / "ir" / "bindings" / language / "schema.json"
+            self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), schema)
+
+    def test_compatibility_golden_matches_generator(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        golden = ROOT / "platform" / "tests" / "golden" / "ir" / "compatibility" / "spec-0012-to-0013.json"
+        self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), compare_specs(ir.specs[-2], ir.specs[-1]))
 
 
 if __name__ == "__main__":

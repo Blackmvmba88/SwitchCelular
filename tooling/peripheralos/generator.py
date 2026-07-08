@@ -125,6 +125,28 @@ def emit_language_bindings(ir: PlatformIR) -> dict[str, str]:
     }
 
 
+def emit_language_binding_schema(ir: PlatformIR, language: str) -> dict:
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": f"PeripheralOS {language.title()} Binding v1",
+        "type": "object",
+        "required": ["language", "protocol", "spec_count", "spec_ids"],
+        "properties": {
+            "language": {"const": language},
+            "protocol": {"const": ir.protocol},
+            "spec_count": {"type": "integer", "minimum": 0},
+            "spec_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
+        },
+    }
+
+
+def emit_language_schemas(ir: PlatformIR) -> dict[str, dict]:
+    return {language: emit_language_binding_schema(ir, language) for language in ("rust", "kotlin", "typescript", "python")}
+
+
 def emit_ir_schema(ir: PlatformIR) -> dict:
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -164,6 +186,66 @@ def emit_compatibility_report(ir: PlatformIR) -> dict:
         "spec_count": len(ir.specs),
         "status": "compatible",
         "changes": [],
+    }
+
+
+def compare_specs(old_spec, new_spec) -> dict:
+    old_header = old_spec.header
+    new_header = new_spec.header
+    changes = []
+
+    if old_header.version != new_header.version:
+        changes.append(
+            {
+                "field": "version",
+                "old": old_header.version,
+                "new": new_header.version,
+                "breaking": True,
+            }
+        )
+    if old_header.status != new_header.status:
+        changes.append(
+            {
+                "field": "status",
+                "old": old_header.status,
+                "new": new_header.status,
+                "breaking": False,
+            }
+        )
+    if old_header.compatibility != new_header.compatibility:
+        changes.append(
+            {
+                "field": "compatibility",
+                "old": old_header.compatibility,
+                "new": new_header.compatibility,
+                "breaking": new_header.compatibility != "Backward Compatible",
+            }
+        )
+    if old_header.tags != new_header.tags:
+        changes.append(
+            {
+                "field": "tags",
+                "old": old_header.tags,
+                "new": new_header.tags,
+                "breaking": False,
+            }
+        )
+    if old_spec.body.raw_markdown != new_spec.body.raw_markdown:
+        changes.append(
+            {
+                "field": "body",
+                "old": old_spec.body.raw_markdown,
+                "new": new_spec.body.raw_markdown,
+                "breaking": False,
+            }
+        )
+
+    overall = "compatible" if not any(change["breaking"] for change in changes) else "breaking"
+    return {
+        "old": old_header.id,
+        "new": new_header.id,
+        "overall": overall,
+        "changes": changes,
     }
 
 

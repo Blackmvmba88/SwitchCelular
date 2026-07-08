@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_language_bindings, emit_manifest, write_json, write_text
+from .generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_language_bindings, emit_language_schemas, emit_manifest, compare_specs, write_json, write_text
 from .model import PlatformIR
 from .parser import parse_spec
 from .validator import validate_specs
@@ -46,11 +46,15 @@ def main(argv: list[str] | None = None) -> int:
     write_json(out_dir / "compatibility.json", emit_compatibility_report(ir))
     for language, payload in emit_binding_stubs(ir).items():
         write_json(out_dir / "bindings" / language / "manifest.json", payload)
+    for language, schema in emit_language_schemas(ir).items():
+        write_json(out_dir / "bindings" / language / "schema.json", schema)
     for language, source in emit_language_bindings(ir).items():
         write_text(
             out_dir / "bindings" / language / f"{language}.{_binding_extension(language)}",
             source,
         )
+    if len(ir.specs) >= 2:
+        write_json(out_dir / "compatibility" / f"{ir.specs[-2].header.id.lower()}-to-{ir.specs[-1].header.id.lower()}.json", compare_specs(ir.specs[-2], ir.specs[-1]))
     write_json(
         out_dir / "ir.json",
         {

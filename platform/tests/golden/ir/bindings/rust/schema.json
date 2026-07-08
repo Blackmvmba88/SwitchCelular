@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "language": {
+      "const": "rust"
+    },
+    "protocol": {
+      "const": "blackmamba.platform.ir.v1"
+    },
+    "spec_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "spec_ids": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "language",
+    "protocol",
+    "spec_count",
+    "spec_ids"
+  ],
+  "title": "PeripheralOS Rust Binding v1",
+  "type": "object"
+}

@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.cli import load_ir
-from tooling.peripheralos.generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_language_bindings, emit_manifest
+from tooling.peripheralos.generator import emit_binding_stubs, emit_compatibility_report, emit_ir_schema, emit_json_schema, emit_language_bindings, emit_language_schemas, emit_manifest
 from tooling.peripheralos.validator import compatibility_report, validate_specs
 
 
@@ -46,12 +46,28 @@ class GeneratorTests(unittest.TestCase):
         self.assertIn("export const PLATFORM_BINDING", bindings["typescript"])
         self.assertIn("PLATFORM_BINDING = PlatformBinding(", bindings["python"])
 
+    def test_language_binding_schemas_exist(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        schemas = emit_language_schemas(ir)
+        self.assertEqual(set(schemas), {"rust", "kotlin", "typescript", "python"})
+        for language, schema in schemas.items():
+            self.assertEqual(schema["properties"]["language"]["const"], language)
+            self.assertEqual(schema["properties"]["protocol"]["const"], ir.protocol)
+
     def test_compatibility_report_available(self):
         ir = load_ir(ROOT / "platform" / "spec")
         spec = next(spec for spec in ir.specs if spec.header.id == "SPEC-0002")
         report = compatibility_report(spec)
         self.assertEqual(report["spec"], "SPEC-0002")
         self.assertEqual(report["compatibility"], "Backward Compatible")
+
+    def test_spec_to_spec_compatibility_report(self):
+        ir = load_ir(ROOT / "platform" / "spec")
+        from tooling.peripheralos.generator import compare_specs
+        report = compare_specs(ir.specs[-2], ir.specs[-1])
+        self.assertIn("old", report)
+        self.assertIn("new", report)
+        self.assertIn(report["overall"], {"compatible", "breaking"})
 
 
 if __name__ == "__main__":
