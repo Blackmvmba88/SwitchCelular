@@ -31,5 +31,8 @@ jobs:
       - name: Run virtual motor campaigns
         run: python -m tooling.peripheralos.campaign_runner --scenario platform/tests/scenarios/basic-motion.json --fuzz-seed seed-a --out-dir platform/generated/campaigns
 
+      - name: Run baseline regression runner
+        run: python -m tooling.peripheralos.baseline_runner --scenario platform/tests/scenarios/basic-motion.json --baseline platform/tests/golden/virtual-campaigns/baseline.snapshot.json --out-dir platform/generated/baselines
+
       - name: Run conformance tests
         run: python -m unittest discover -s tests -v

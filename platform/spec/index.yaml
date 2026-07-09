@@ -31,6 +31,8 @@ specs:
     file: 0014-virtual-motor.md
   - id: SPEC-0015
     file: 0015-virtual-campaigns.md
+  - id: SPEC-0016
+    file: 0016-regression-baselines.md
 canonical_contracts:
   - id: peripheralos.abi.v1
     file: abi-v1.yaml

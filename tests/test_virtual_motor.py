@@ -6,6 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from tooling.peripheralos.baseline import compare_campaign_to_baseline, create_baseline, load_baseline, save_baseline
 from tooling.peripheralos.campaigns import CampaignScenario, fuzz_scenario, run_campaign
 from tooling.peripheralos.harness import run_harness
 from tooling.peripheralos.simulator import VirtualMotorConfig, load_scenario, run_virtual_motor
@@ -50,6 +51,17 @@ class VirtualMotorTests(unittest.TestCase):
         snapshot = run_campaign([CampaignScenario(path=scenario), CampaignScenario(path=fuzzed, seed="seed-a")], ROOT / "platform" / "generated" / "campaigns-golden-check")
         golden = ROOT / "platform" / "tests" / "golden" / "virtual-campaigns" / "basic-motion.campaign.snapshot.json"
         self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), snapshot)
+
+    def test_baseline_runner_detects_drift(self):
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        baseline = create_baseline([CampaignScenario(path=scenario)], ROOT / "platform" / "generated" / "baseline-build")
+        report = compare_campaign_to_baseline(baseline, baseline)
+        self.assertEqual(report["status"], "compatible")
+        self.assertEqual(report["drift"], [])
+        baseline_path = ROOT / "platform" / "generated" / "baseline.json"
+        save_baseline(baseline_path, baseline)
+        loaded = load_baseline(baseline_path)
+        self.assertEqual(loaded["protocol"], "blackmamba.virtual.campaign.v1")
 
 
 if __name__ == "__main__":
