@@ -58,6 +58,34 @@ def compare_campaign_to_baseline(current: dict[str, Any], baseline: dict[str, An
                     "breaking": False,
                 }
             )
+        if current_entry.get("profile") != baseline_entry.get("profile"):
+            drift.append(
+                {
+                    "scenario": scenario,
+                    "kind": "profile",
+                    "baseline": baseline_entry.get("profile"),
+                    "current": current_entry.get("profile"),
+                    "breaking": False,
+                }
+            )
+    baseline_metrics = baseline.get("metrics", {})
+    current_metrics = current.get("metrics", {})
+    for key in ["avg_latency_ms", "avg_confidence"]:
+        if baseline_metrics.get(key) != current_metrics.get(key):
+            drift.append(
+                {
+                    "kind": key,
+                    "baseline": baseline_metrics.get(key),
+                    "current": current_metrics.get(key),
+                    "breaking": False,
+                }
+            )
     status = "compatible" if not any(item["breaking"] for item in drift) else "breaking"
-    return {"status": status, "drift": drift, "baseline_count": len(baseline_results), "current_count": len(current_results)}
-
+    return {
+        "status": status,
+        "drift": drift,
+        "baseline_count": len(baseline_results),
+        "current_count": len(current_results),
+        "baseline_metrics": baseline_metrics,
+        "current_metrics": current_metrics,
+    }

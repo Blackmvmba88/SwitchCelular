@@ -1,9 +1,18 @@
 {
+  "metrics": {
+    "avg_confidence": 1.0,
+    "avg_latency_ms": 5.0,
+    "profile_count": 1,
+    "scenario_count": 1
+  },
   "protocol": "blackmamba.virtual.campaign.v1",
   "result_count": 1,
   "results": [
     {
+      "avg_confidence": 1.0,
+      "avg_latency_ms": 5.0,
       "frame_count": 2,
+      "profile": "default",
       "protocol": "blackmamba.virtual.motor.v1",
       "scenario": "basic-motion",
       "trace_hash": "5f81e250c890b2856f84151664817961e88d944c06058ac8f4919312b321c708",

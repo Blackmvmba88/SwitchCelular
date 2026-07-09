@@ -25,6 +25,7 @@ pub const PLATFORM_BINDING: PlatformBinding = PlatformBinding {
         "SPEC-0012",
         "SPEC-0013",
         "SPEC-0014",
-        "SPEC-0015"
+        "SPEC-0015",
+        "SPEC-0016"
     ],
 };

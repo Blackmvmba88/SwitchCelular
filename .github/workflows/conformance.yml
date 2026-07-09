@@ -29,7 +29,7 @@ jobs:
         run: python platform/generator/peripheralos_validate.py all
 
       - name: Run virtual motor campaigns
-        run: python -m tooling.peripheralos.campaign_runner --scenario platform/tests/scenarios/basic-motion.json --fuzz-seed seed-a --out-dir platform/generated/campaigns
+        run: python -m tooling.peripheralos.campaign_runner --scenario platform/tests/scenarios/basic-motion.json --profile default --profile aim --fuzz-seed seed-a --out-dir platform/generated/campaigns
 
       - name: Run baseline regression runner
         run: python -m tooling.peripheralos.baseline_runner --scenario platform/tests/scenarios/basic-motion.json --baseline platform/tests/golden/virtual-campaigns/baseline.snapshot.json --out-dir platform/generated/baselines

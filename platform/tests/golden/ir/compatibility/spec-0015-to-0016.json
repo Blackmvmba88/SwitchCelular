@@ -1,0 +1,29 @@
+{
+  "changes": [
+    {
+      "breaking": false,
+      "field": "tags",
+      "new": [
+        "regression",
+        "baseline",
+        "trace",
+        "ci"
+      ],
+      "old": [
+        "virtualization",
+        "campaigns",
+        "fuzzing",
+        "regression"
+      ]
+    },
+    {
+      "breaking": false,
+      "field": "body",
+      "new": "# Spec 0016: Regression Baselines / Trace Drift\n\n## Status\n\nFrozen\n\n## Purpose\n\nDefine the baseline model used to detect trace drift, hash drift, and regression changes in virtual campaigns.\n\n## Contract\n\nBaselines must:\n\n- freeze expected trace hashes\n- compare current campaign outputs against reference snapshots\n- classify drift\n- report compatibility impact\n\n## Required Outputs\n\n- baseline snapshot\n- trace drift report\n- regression status\n",
+      "old": "# Spec 0015: Virtual Campaigns / Regression / Fuzzing\n\n## Status\n\nFrozen\n\n## Purpose\n\nDefine campaign execution over multiple deterministic scenarios with controlled fuzzing and regression snapshots.\n\n## Contract\n\nCampaigns must:\n\n- run multiple scenarios\n- support deterministic fuzzing\n- emit regression snapshots\n- fail when trace hashes change unexpectedly\n\n## Required Outputs\n\n- campaign summary\n- per-scenario trace\n- per-scenario hash\n- regression snapshot\n"
+    }
+  ],
+  "new": "SPEC-0016",
+  "old": "SPEC-0015",
+  "overall": "compatible"
+}

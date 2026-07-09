@@ -40,21 +40,30 @@ class VirtualMotorTests(unittest.TestCase):
     def test_campaign_runner_writes_snapshot(self):
         out_dir = ROOT / "platform" / "generated" / "campaigns"
         scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
-        snapshot = run_campaign([CampaignScenario(path=scenario), CampaignScenario(path=fuzz_scenario(scenario, "seed-c"))], out_dir)
+        snapshot = run_campaign([CampaignScenario(path=scenario, profile="default"), CampaignScenario(path=fuzz_scenario(scenario, "seed-c"), seed="seed-c", profile="default")], out_dir)
         self.assertEqual(snapshot["protocol"], "blackmamba.virtual.campaign.v1")
         self.assertEqual(snapshot["result_count"], 2)
+        self.assertIn("metrics", snapshot)
         self.assertTrue((out_dir / "campaign.snapshot.json").exists())
 
     def test_campaign_golden_snapshot_matches(self):
         scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
         fuzzed = fuzz_scenario(scenario, "seed-a")
-        snapshot = run_campaign([CampaignScenario(path=scenario), CampaignScenario(path=fuzzed, seed="seed-a")], ROOT / "platform" / "generated" / "campaigns-golden-check")
+        snapshot = run_campaign(
+            [
+                CampaignScenario(path=scenario, profile="default"),
+                CampaignScenario(path=scenario, profile="aim"),
+                CampaignScenario(path=fuzzed, seed="seed-a", profile="default"),
+                CampaignScenario(path=fuzzed, seed="seed-a", profile="aim"),
+            ],
+            ROOT / "platform" / "generated" / "campaigns-golden-check",
+        )
         golden = ROOT / "platform" / "tests" / "golden" / "virtual-campaigns" / "basic-motion.campaign.snapshot.json"
         self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), snapshot)
 
     def test_baseline_runner_detects_drift(self):
         scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
-        baseline = create_baseline([CampaignScenario(path=scenario)], ROOT / "platform" / "generated" / "baseline-build")
+        baseline = create_baseline([CampaignScenario(path=scenario, profile="default")], ROOT / "platform" / "generated" / "baseline-build")
         report = compare_campaign_to_baseline(baseline, baseline)
         self.assertEqual(report["status"], "compatible")
         self.assertEqual(report["drift"], [])
@@ -62,6 +71,17 @@ class VirtualMotorTests(unittest.TestCase):
         save_baseline(baseline_path, baseline)
         loaded = load_baseline(baseline_path)
         self.assertEqual(loaded["protocol"], "blackmamba.virtual.campaign.v1")
+
+    def test_multi_profile_campaign_matrix(self):
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        snapshot = run_campaign(
+            [
+                CampaignScenario(path=scenario, profile="default"),
+                CampaignScenario(path=scenario, profile="aim"),
+            ],
+            ROOT / "platform" / "generated" / "multi-profile",
+        )
+        self.assertEqual(snapshot["metrics"]["profile_count"], 2)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,41 @@
+{
+  "protocol": "blackmamba.virtual.motor.v1",
+  "scenario": "basic-motion",
+  "motor_id": "virtual-motor-001",
+  "diagnostics": {
+    "motor_id": "virtual-motor-001",
+    "seed": "seed-v1",
+    "frame_count": 2,
+    "latency_ms": 5,
+    "jitter_ms": 0,
+    "noise": 0.0
+  },
+  "frames": [
+    {
+      "orientation": {
+        "yaw": 0.0,
+        "pitch": 0.1,
+        "roll": 0.0
+      },
+      "buttons": {
+        "primary_action": true
+      },
+      "timestamp_ms": 0,
+      "confidence": 1.0,
+      "latency_ms": 5
+    },
+    {
+      "orientation": {
+        "yaw": 0.2,
+        "pitch": 0.1,
+        "roll": 0.0
+      },
+      "buttons": {
+        "primary_action": false
+      },
+      "timestamp_ms": 16,
+      "confidence": 1.0,
+      "latency_ms": 5
+    }
+  ]
+}
