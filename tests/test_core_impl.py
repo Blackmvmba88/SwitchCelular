@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from core.calibration_core import tune_profile_from_metrics
-from core.diagnostics_core import RegressionMetrics
+from core.diagnostics_core import RegressionMetrics, benchmark_pipeline
 from core.fusion_core import fuse_samples
 from core.sensor_core import AndroidSensorEvent, SensorSample, ingest_android_events, normalize_sample
 from core.profile_core import load_profile, validate_profile
@@ -104,6 +104,13 @@ class CoreImplementationTests(unittest.TestCase):
         self.assertLess(tuned_profile.motion["smoothing"]["alpha"], 0.82)
         self.assertGreater(recommendation.deadzone_yaw, 0.35)
         self.assertGreaterEqual(screen_frame.confidence, 0.0)
+
+    def test_pipeline_benchmark_reports_metrics(self):
+        benchmark = benchmark_pipeline("fusion", 5, lambda: fuse_samples([SensorSample(timestamp_ns=1, sensor="gyroscope", x=0.1, y=0.2, z=0.3)]))
+        self.assertEqual(benchmark.name, "fusion")
+        self.assertEqual(len(benchmark.samples_ms), 5)
+        self.assertIsNotNone(benchmark.metrics)
+        self.assertGreaterEqual(benchmark.metrics.p50_latency_ms, 0.0)
 
 
 if __name__ == "__main__":

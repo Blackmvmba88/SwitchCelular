@@ -67,8 +67,18 @@ def fuse_orientation(gyro: SensorSample | None, accel: SensorSample | None, magn
 
 
 def fuse_samples(samples: list[SensorSample]) -> FusionFrame:
-    gyro = next((sample for sample in samples if sample.sensor == "gyroscope"), None)
-    accel = next((sample for sample in samples if sample.sensor == "accelerometer"), None)
-    magnetometer = next((sample for sample in samples if sample.sensor == "magnetometer"), None)
-    timestamp_ns = max((sample.timestamp_ns for sample in samples), default=0)
+    gyro = None
+    accel = None
+    magnetometer = None
+    timestamp_ns = 0
+    for sample in samples:
+        if sample.timestamp_ns > timestamp_ns:
+            timestamp_ns = sample.timestamp_ns
+        sensor = sample.sensor
+        if sensor == "gyroscope" and gyro is None:
+            gyro = sample
+        elif sensor == "accelerometer" and accel is None:
+            accel = sample
+        elif sensor == "magnetometer" and magnetometer is None:
+            magnetometer = sample
     return fuse_orientation(gyro, accel, magnetometer, timestamp_ns)

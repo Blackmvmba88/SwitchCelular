@@ -27,34 +27,36 @@ def map_aim_to_delta(
 ) -> tuple[AimDelta, MapperState]:
     state = state or MapperState()
     motion = profile.motion
-    sensitivity = motion.get("sensitivity", {})
-    deadzone = motion.get("deadzone", {})
-    smoothing = motion.get("smoothing", {})
-    recoil = motion.get("recoil", {})
+
+    sensitivity = motion.get("sensitivity") if isinstance(motion, dict) else {}
+    deadzone = motion.get("deadzone") if isinstance(motion, dict) else {}
+    smoothing = motion.get("smoothing") if isinstance(motion, dict) else {}
+    recoil = motion.get("recoil") if isinstance(motion, dict) else {}
+
+    def _value(source: object, key: str, default: float) -> float:
+        if isinstance(source, dict):
+            raw = source.get(key, default)
+            return float(raw) if raw is not None else default
+        return default
 
     base_dx = aim_frame.forward_vector[0]
     base_dy = aim_frame.forward_vector[1]
     dx, dy = apply_deadzone(
         base_dx,
         base_dy,
-        float(deadzone.get("yaw", 0.0)) if isinstance(deadzone, dict) else 0.0,
-        float(deadzone.get("pitch", 0.0)) if isinstance(deadzone, dict) else 0.0,
+        _value(deadzone, "yaw", 0.0),
+        _value(deadzone, "pitch", 0.0),
     )
     dx, dy = apply_sensitivity(
         dx,
         dy,
-        float(sensitivity.get("yaw", 1.0)) if isinstance(sensitivity, dict) else 1.0,
-        float(sensitivity.get("pitch", 1.0)) if isinstance(sensitivity, dict) else 1.0,
+        _value(sensitivity, "yaw", 1.0),
+        _value(sensitivity, "pitch", 1.0),
     )
-    alpha = float(smoothing.get("alpha", 0.0)) if isinstance(smoothing, dict) else 0.0
+    alpha = _value(smoothing, "alpha", 0.0)
     dx, dy = apply_smoothing(state.previous_delta, (dx, dy), alpha)
     if isinstance(recoil, dict):
-        dx, dy = apply_recoil_compensation(
-            dx,
-            dy,
-            float(recoil.get("x", 0.0)),
-            float(recoil.get("y", 0.0)),
-        )
+        dx, dy = apply_recoil_compensation(dx, dy, _value(recoil, "x", 0.0), _value(recoil, "y", 0.0))
     state.previous_delta = (dx, dy)
     state.last_profile_id = profile.id
     return AimDelta(dx=dx, dy=dy), state
