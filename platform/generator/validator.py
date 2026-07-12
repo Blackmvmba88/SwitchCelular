@@ -7,6 +7,7 @@ from .model import SpecDocument, ValidationIssue, ValidationReport
 
 ALLOWED_STATUSES = {"Draft", "Review", "Accepted", "Frozen", "Deprecated", "Superseded"}
 ALLOWED_COMPATIBILITY = {"Backward Compatible", "Breaking", "Migration Required"}
+REQUIRED_SECTIONS = {"Status", "Purpose"}
 
 
 def validate_specs(specs: list[SpecDocument]) -> ValidationReport:
@@ -30,6 +31,17 @@ def validate_specs(specs: list[SpecDocument]) -> ValidationReport:
                 issues.append(ValidationIssue("error", "missing-dependency", f"unknown dependency {dep}", header.id))
         if header.id == "SPEC-0000" and header.depends_on:
             issues.append(ValidationIssue("warning", "root-dependencies", "platform root spec should not depend on others", header.id))
+        section_names = {section.name for section in spec.sections}
+        missing_sections = REQUIRED_SECTIONS - section_names
+        if missing_sections:
+            issues.append(
+                ValidationIssue(
+                    "warning",
+                    "missing-sections",
+                    f"missing sections: {', '.join(sorted(missing_sections))}",
+                    header.id,
+                )
+            )
 
     ok = not any(issue.severity == "error" for issue in issues)
     return ValidationReport(ok=ok, issues=issues)
@@ -45,4 +57,3 @@ def compatibility_report(spec: SpecDocument) -> dict:
         "owner": spec.header.owner,
         "header": header,
     }
-

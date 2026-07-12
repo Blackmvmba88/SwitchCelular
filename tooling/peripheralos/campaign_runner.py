@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from .campaigns import CampaignScenario, fuzz_scenario, run_campaign
+from .campaigns import CampaignScenario, campaign_report, fuzz_scenario, run_campaign
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -26,6 +26,7 @@ def main(argv: list[str] | None = None) -> int:
                 scenarios.append(CampaignScenario(path=fuzz_scenario(Path(path), seed), seed=seed, profile=profile))
 
     snapshot = run_campaign(scenarios, Path(args.out_dir))
+    snapshot["report"] = campaign_report(snapshot)
     print(snapshot)
     return 0
 

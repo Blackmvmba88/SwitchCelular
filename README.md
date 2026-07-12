@@ -32,6 +32,14 @@ No architectural rule should exist only in source code, comments, prototypes, or
 ├── adr/                     # Accepted architectural decisions
 ├── rfcs/                    # Proposed platform changes
 ├── schemas/                 # Machine-checkable contracts
+├── spec/                    # Normative and informative specifications
+├── core/                    # Motion and perception implementation packages
+├── desktop/                 # Desktop host adapters and mappers
+├── protocol/                # Canonical protocol bindings
+├── profiles/                # Declarative runtime profiles
+├── runtime/                 # Shared runtime orchestration
+├── sdk/                     # Public SDK surface
+├── transports/              # Transport backends
 └── platform/                # Normative platform layer
     ├── spec/                # Canonical specification index
     ├── generator/           # Deterministic binding/compiler surface
@@ -132,3 +140,58 @@ The repository is intentionally biased toward governance, architecture, and cont
 PeripheralOS is not a single app.
 
 It is the platform layer for a future ecosystem of programmable peripherals: devices that can be described, validated, controlled, extended, and evolved without losing architectural control.
+
+## First Playable Path
+
+The first user-facing MVP is documented in [`docs/GUN_MODE_MVP.md`](./docs/GUN_MODE_MVP.md).
+
+That path treats the phone as a motion pistol controller:
+
+- sensors on the phone
+- orientation fusion
+- calibration
+- UDP transport
+- desktop aim mapping
+- trigger input
+
+The implementation must keep game logic out of the core and remain profile-driven.
+
+## Implementation Layout
+
+The real implementation surface is intentionally separated from the normative platform layer:
+
+- `core/` holds motion, aim, reference, space, context, protocol, diagnostics, and regression packages.
+- `desktop/` holds host adapters and mapping logic.
+- `protocol/` holds canonical protocol bindings derived from `spec/`.
+- `profiles/` holds declarative profiles.
+- `runtime/` holds shared orchestration.
+- `transports/` holds transport backends.
+- `sdk/` holds public API surfaces.
+
+## Specification Freeze
+
+The current architectural direction is to freeze the normative contract surface in `spec/` before expanding implementation work.
+
+The immediate normative set is:
+
+- `MOTION_PACKET_V1`
+- `CAPABILITIES_V1`
+- `PROFILE_SCHEMA_V1`
+- `HOST_ADAPTER_ABI_V1`
+- `PIPELINE_STATE_V1`
+- `AIM_CORE_V1`
+- `REFERENCE_CORE_V1`
+- `SPACE_CORE_V1`
+- `CONTEXT_CORE_V1`
+- `CONFORMANCE_V1`
+
+Canonical examples and error identifiers are also part of the freeze surface:
+
+- `spec/examples/`
+- `spec/errors/`
+
+Standard governance documents are part of the freeze surface too:
+
+- `spec/VERSION.md`
+- `spec/CHANGELOG_SPEC.md`
+- `spec/IMPLEMENTATION_GUIDE.md`

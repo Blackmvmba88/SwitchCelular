@@ -61,6 +61,9 @@ canonical_contracts:
 
 generation:
   source_of_truth: platform/spec/index.yaml
+  spec_version: spec/VERSION.md
+  changelog: spec/CHANGELOG_SPEC.md
+  implementation_guide: spec/IMPLEMENTATION_GUIDE.md
   generated_outputs:
     - platform/bindings/
   rule: Generated outputs must be reproducible from canonical contracts.

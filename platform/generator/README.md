@@ -2,13 +2,17 @@
 
 Deterministic specification compiler for PeripheralOS.
 
-Pipeline:
+## Pipeline
 
-1. Parse specs
-2. Build AST
-3. Validate model
-4. Emit schemas and bindings
-5. Emit docs and compatibility reports
+1. Parse normative specs into a canonical AST.
+2. Validate identifiers, references, invariants, and contract relationships.
+3. Emit machine-checkable artifacts.
+4. Emit schemas, docs, and compatibility reports.
+5. Emit bindings only after the AST and schemas are stable.
 
-The generator must use a single source of truth and a stable output order.
+## Rules
 
+- The generator MUST use a single source of truth.
+- The generator MUST preserve stable output order.
+- The generator MUST validate the spec before emitting artifacts.
+- The generator MUST NOT infer missing contract semantics from implementation code.

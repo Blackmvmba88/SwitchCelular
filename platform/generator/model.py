@@ -6,6 +6,12 @@ from typing import Any
 
 
 @dataclass(frozen=True)
+class SpecSection:
+    name: str
+    body: str
+
+
+@dataclass(frozen=True)
 class SpecHeader:
     id: str
     title: str
@@ -30,6 +36,18 @@ class SpecDocument:
     path: Path
     header: SpecHeader
     body: SpecBody
+    sections: list[SpecSection] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class SpecAST:
+    metadata: SpecHeader
+    sections: list[SpecSection]
+    constraints: list[str] = field(default_factory=list)
+    invariants: list[str] = field(default_factory=list)
+    examples: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    references: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -50,4 +68,4 @@ class ValidationReport:
 class PlatformIR:
     specs: list[SpecDocument]
     index: dict[str, Any]
-
+    spec_version: str = "1.0.0-candidate"

@@ -1,0 +1,27 @@
+{
+  "state": "READY",
+  "sequence": 1,
+  "sensor_state": {
+    "status": "ok"
+  },
+  "fusion_state": {
+    "status": "stable"
+  },
+  "calibration_state": {
+    "centered": true
+  },
+  "aim_frame": {
+    "confidence": 1.0,
+    "drift": 0.0
+  },
+  "reference_state": {
+    "source": "imu_reference",
+    "confidence": 0.91
+  },
+  "space_state": {
+    "monitor_distance_cm": 85
+  },
+  "context_state": {
+    "recommended_profile": "pistol"
+  }
+}

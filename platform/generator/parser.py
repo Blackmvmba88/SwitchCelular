@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .model import SpecBody, SpecDocument, SpecHeader
+from .model import SpecBody, SpecDocument, SpecHeader, SpecSection
 
 
 class SpecParseError(ValueError):
@@ -86,5 +86,17 @@ def parse_spec(path: Path) -> SpecDocument:
         supersedes=None if header_data.get("supersedes") in {None, "null"} else str(header_data.get("supersedes")),
         tags=[str(x) for x in header_data.get("tags", [])],
     )
-    return SpecDocument(path=path, header=header, body=SpecBody(raw_markdown=body))
-
+    sections: list[SpecSection] = []
+    current_name: str | None = None
+    current_lines: list[str] = []
+    for line in body.splitlines():
+        if line.startswith("# "):
+            if current_name is not None:
+                sections.append(SpecSection(name=current_name, body="\n".join(current_lines).strip()))
+            current_name = line[2:].strip()
+            current_lines = []
+        else:
+            current_lines.append(line)
+    if current_name is not None:
+        sections.append(SpecSection(name=current_name, body="\n".join(current_lines).strip()))
+    return SpecDocument(path=path, header=header, body=SpecBody(raw_markdown=body), sections=sections)

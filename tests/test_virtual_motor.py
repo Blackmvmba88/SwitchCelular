@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tooling.peripheralos.baseline import compare_campaign_to_baseline, create_baseline, load_baseline, save_baseline
-from tooling.peripheralos.campaigns import CampaignScenario, fuzz_scenario, run_campaign
+from tooling.peripheralos.campaigns import CampaignScenario, campaign_report, fuzz_scenario, fuzz_scenario_with_hypothesis, run_campaign
 from tooling.peripheralos.harness import run_harness
 from tooling.peripheralos.simulator import VirtualMotorConfig, load_scenario, run_virtual_motor
 
@@ -37,6 +37,12 @@ class VirtualMotorTests(unittest.TestCase):
         fuzz_b = fuzz_scenario(source, "seed-a")
         self.assertEqual(fuzz_a.read_text(encoding="utf-8"), fuzz_b.read_text(encoding="utf-8"))
 
+    def test_hypothesis_fuzz_is_reproducible(self):
+        source = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        fuzz_a = fuzz_scenario_with_hypothesis(source, "seed-h")
+        fuzz_b = fuzz_scenario_with_hypothesis(source, "seed-h")
+        self.assertEqual(fuzz_a.read_text(encoding="utf-8"), fuzz_b.read_text(encoding="utf-8"))
+
     def test_campaign_runner_writes_snapshot(self):
         out_dir = ROOT / "platform" / "generated" / "campaigns"
         scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
@@ -60,6 +66,10 @@ class VirtualMotorTests(unittest.TestCase):
         )
         golden = ROOT / "platform" / "tests" / "golden" / "virtual-campaigns" / "basic-motion.campaign.snapshot.json"
         self.assertEqual(json.loads(golden.read_text(encoding="utf-8")), snapshot)
+        report = campaign_report(snapshot)
+        self.assertEqual(report["result_count"], 4)
+        self.assertIn("profile_groups", report)
+        self.assertIn("scenario_groups", report)
 
     def test_baseline_runner_detects_drift(self):
         scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
@@ -82,6 +92,45 @@ class VirtualMotorTests(unittest.TestCase):
             ROOT / "platform" / "generated" / "multi-profile",
         )
         self.assertEqual(snapshot["metrics"]["profile_count"], 2)
+
+    def test_campaign_report_groups_by_profile_and_scenario(self):
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        snapshot = run_campaign(
+            [
+                CampaignScenario(path=scenario, profile="default"),
+                CampaignScenario(path=scenario, profile="aim"),
+            ],
+            ROOT / "platform" / "generated" / "single-campaign",
+        )
+        report = campaign_report(snapshot)
+        self.assertEqual(report["result_count"], 2)
+        self.assertIn("default", report["profile_groups"])
+        self.assertIn("basic-motion", report["scenario_groups"])
+        self.assertIn("comparison_matrix", report)
+        self.assertIn("top_latency_results", report)
+        self.assertIn("top_confidence_results", report)
+        self.assertIn("cross_profile_comparisons", report)
+        self.assertIn("scenario_rankings", report)
+        self.assertIn("regression_summary", report)
+        self.assertIn("p50_latency_ms", report["metrics"])
+        self.assertIn("drift_score", report["metrics"])
+        self.assertEqual(report["regression_summary"]["cross_profile_count"], 1)
+        self.assertEqual(report["cross_profile_comparisons"][0]["profile"], "aim")
+        self.assertIn("basic-motion", report["scenario_rankings"])
+        self.assertIn("worst_latency", report["scenario_rankings"]["basic-motion"])
+        self.assertTrue((ROOT / "platform" / "generated" / "single-campaign" / "campaign.regression.json").exists())
+
+    def test_baseline_comparison_includes_profile_and_scenario_deltas(self):
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        baseline = create_baseline([CampaignScenario(path=scenario, profile="default")], ROOT / "platform" / "generated" / "baseline-comparison")
+        report = compare_campaign_to_baseline(baseline, baseline)
+        self.assertIn("comparison_rows", report)
+        self.assertIn("profile_deltas", report)
+        self.assertIn("scenario_deltas", report)
+        self.assertIn("default", report["profile_deltas"])
+        self.assertIn("basic-motion", report["scenario_deltas"])
+        self.assertIn("baseline_report", report)
+        self.assertIn("current_report", report)
 
 
 if __name__ == "__main__":

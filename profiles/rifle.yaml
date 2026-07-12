@@ -1,0 +1,27 @@
+id: rifle
+version: 1.0.0
+device:
+  model: generic-android
+motion:
+  sensitivity:
+    yaw: 0.95
+    pitch: 0.8
+  deadzone:
+    yaw: 0.25
+    pitch: 0.25
+  smoothing:
+    alpha: 0.88
+trigger:
+  primary: touch
+  secondary: volume_button
+  debounce_ms: 30
+mapping:
+  mode: relative
+limits:
+  max_rate: 1000
+reference:
+  source_priority:
+    - imu_reference
+    - vision_reference
+context:
+  mode: rifle

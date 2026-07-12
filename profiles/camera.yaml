@@ -1,0 +1,27 @@
+id: camera
+version: 1.0.0
+device:
+  model: generic-android
+motion:
+  sensitivity:
+    yaw: 1.0
+    pitch: 1.0
+  deadzone:
+    yaw: 0.1
+    pitch: 0.1
+  smoothing:
+    alpha: 0.75
+trigger:
+  primary: touch
+  secondary: touch
+  debounce_ms: 20
+mapping:
+  mode: relative
+limits:
+  max_rate: 900
+reference:
+  source_priority:
+    - vision_reference
+    - screen_reference
+context:
+  mode: camera

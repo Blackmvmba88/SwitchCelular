@@ -1,0 +1,19 @@
+id: pistol
+version: 1.0.0
+device:
+  model: generic-android
+motion:
+  sensitivity:
+    yaw: 1.15
+    pitch: 0.9
+  deadzone:
+    yaw: 0.35
+    pitch: 0.35
+  smoothing:
+    alpha: 0.82
+trigger:
+  debounce_ms: 25
+mapping:
+  mode: relative
+limits:
+  max_rate: 1200

@@ -5,7 +5,7 @@ from pathlib import Path
 import json
 from typing import Any
 
-from .campaigns import CampaignScenario, run_campaign
+from .campaigns import CampaignScenario, campaign_report, run_campaign
 
 
 @dataclass(frozen=True)
@@ -26,18 +26,32 @@ def save_baseline(path: Path, campaign_snapshot: dict[str, Any]) -> None:
 
 
 def create_baseline(scenarios: list[CampaignScenario], out_dir: Path) -> dict[str, Any]:
-    return run_campaign(scenarios, out_dir)
+    snapshot = run_campaign(scenarios, out_dir)
+    snapshot["report"] = campaign_report(snapshot)
+    return snapshot
 
 
 def compare_campaign_to_baseline(current: dict[str, Any], baseline: dict[str, Any]) -> dict[str, Any]:
     current_results = {entry["scenario"]: entry for entry in current.get("results", [])}
     baseline_results = {entry["scenario"]: entry for entry in baseline.get("results", [])}
     drift = []
+    comparison_rows = []
     for scenario, baseline_entry in baseline_results.items():
         current_entry = current_results.get(scenario)
         if current_entry is None:
             drift.append({"scenario": scenario, "kind": "missing", "breaking": True})
             continue
+        row = {
+            "scenario": scenario,
+            "baseline_profile": baseline_entry.get("profile"),
+            "current_profile": current_entry.get("profile"),
+            "baseline_latency_ms": baseline_entry.get("avg_latency_ms"),
+            "current_latency_ms": current_entry.get("avg_latency_ms"),
+            "baseline_confidence": baseline_entry.get("avg_confidence"),
+            "current_confidence": current_entry.get("avg_confidence"),
+            "latency_delta_ms": round(current_entry.get("avg_latency_ms", 0.0) - baseline_entry.get("avg_latency_ms", 0.0), 6),
+            "confidence_delta": round(current_entry.get("avg_confidence", 0.0) - baseline_entry.get("avg_confidence", 0.0), 6),
+        }
         if current_entry["trace_hash"] != baseline_entry["trace_hash"]:
             drift.append(
                 {
@@ -68,8 +82,27 @@ def compare_campaign_to_baseline(current: dict[str, Any], baseline: dict[str, An
                     "breaking": False,
                 }
             )
+        comparison_rows.append(row)
     baseline_metrics = baseline.get("metrics", {})
     current_metrics = current.get("metrics", {})
+    profile_delta = {}
+    for profile in sorted(set(baseline.get("report", {}).get("profile_groups", {})) | set(current.get("report", {}).get("profile_groups", {}))):
+        baseline_profile = baseline.get("report", {}).get("profile_groups", {}).get(profile, {})
+        current_profile = current.get("report", {}).get("profile_groups", {}).get(profile, {})
+        profile_delta[profile] = {
+            "count_delta": current_profile.get("count", 0) - baseline_profile.get("count", 0),
+            "latency_delta_ms": round(current_profile.get("avg_latency_ms", 0.0) - baseline_profile.get("avg_latency_ms", 0.0), 6),
+            "confidence_delta": round(current_profile.get("avg_confidence", 0.0) - baseline_profile.get("avg_confidence", 0.0), 6),
+        }
+    scenario_delta = {}
+    for scenario in sorted(set(baseline.get("report", {}).get("scenario_groups", {})) | set(current.get("report", {}).get("scenario_groups", {}))):
+        baseline_scenario = baseline.get("report", {}).get("scenario_groups", {}).get(scenario, {})
+        current_scenario = current.get("report", {}).get("scenario_groups", {}).get(scenario, {})
+        scenario_delta[scenario] = {
+            "count_delta": current_scenario.get("count", 0) - baseline_scenario.get("count", 0),
+            "latency_delta_ms": round(current_scenario.get("avg_latency_ms", 0.0) - baseline_scenario.get("avg_latency_ms", 0.0), 6),
+            "confidence_delta": round(current_scenario.get("avg_confidence", 0.0) - baseline_scenario.get("avg_confidence", 0.0), 6),
+        }
     for key in ["avg_latency_ms", "avg_confidence"]:
         if baseline_metrics.get(key) != current_metrics.get(key):
             drift.append(
@@ -88,4 +121,9 @@ def compare_campaign_to_baseline(current: dict[str, Any], baseline: dict[str, An
         "current_count": len(current_results),
         "baseline_metrics": baseline_metrics,
         "current_metrics": current_metrics,
+        "baseline_report": baseline.get("report", {}),
+        "current_report": current.get("report", {}),
+        "comparison_rows": comparison_rows,
+        "profile_deltas": profile_delta,
+        "scenario_deltas": scenario_delta,
     }

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "sequence": 1,
+  "timestamp_ns": 1000000000,
+  "orientation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+  },
+  "angular_velocity": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+  },
+  "acceleration": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.81
+  },
+  "buttons": 0,
+  "battery": 100,
+  "flags": 0,
+  "capabilities": [
+    "CAPABILITY_ORIENTATION",
+    "CAPABILITY_GYROSCOPE",
+    "CAPABILITY_ACCELERATION"
+  ],
+  "reserved": [],
+  "extension_length": 0
+}

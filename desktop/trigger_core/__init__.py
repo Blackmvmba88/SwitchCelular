@@ -1,0 +1,1 @@
+"""Desktop trigger adapter layer."""

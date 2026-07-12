@@ -1,0 +1,10 @@
+{
+  "device_id": "android-motion-device",
+  "capabilities": [
+    "CAPABILITY_ORIENTATION",
+    "CAPABILITY_ACCELERATION",
+    "CAPABILITY_GYROSCOPE",
+    "CAPABILITY_TRIGGER",
+    "CAPABILITY_BATTERY"
+  ]
+}
