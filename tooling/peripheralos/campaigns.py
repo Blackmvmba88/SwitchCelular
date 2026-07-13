@@ -7,6 +7,8 @@ from math import floor
 from pathlib import Path
 from typing import Any
 
+from core.diagnostics_core import benchmark_pipeline
+
 from .harness import run_harness
 
 from hypothesis import given, settings, strategies as st
@@ -206,8 +208,50 @@ def run_campaign(scenarios: list[CampaignScenario], out_dir: Path) -> dict[str, 
         "results": [asdict(result) for result in results],
     }
     (out_dir / "campaign.snapshot.json").write_text(json.dumps(snapshot, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (out_dir / "campaign.regression.json").write_text(json.dumps(campaign_report(snapshot), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    report = campaign_report(snapshot)
+    (out_dir / "campaign.regression.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _write_campaign_benchmark(scenarios, out_dir, report)
     return snapshot
+
+
+def _write_campaign_benchmark(scenarios: list[CampaignScenario], out_dir: Path, report: dict[str, Any]) -> None:
+    if not scenarios:
+        return
+
+    def _run_first_scenario() -> dict[str, Any]:
+        summary = run_harness(
+            scenarios[0].path,
+            out_dir / "benchmark-traces",
+            motor_id=scenarios[0].motor_id,
+            seed=scenarios[0].seed,
+            profile=scenarios[0].profile,
+        )
+        return summary
+
+    benchmark = benchmark_pipeline(
+        "campaign",
+        max(3, len(scenarios)),
+        _run_first_scenario,
+        drift_score=report.get("metrics", {}).get("drift_score", 0.0),
+    )
+    payload = {
+        "protocol": "blackmamba.virtual.campaign.benchmark.v1",
+        "name": benchmark.name,
+        "sample_count": len(benchmark.samples_ms),
+        "samples_ms": [round(sample, 6) for sample in benchmark.samples_ms],
+        "median_latency_ms": round(benchmark.median_latency_ms, 6),
+        "metrics": None
+        if benchmark.metrics is None
+        else {
+            "p50_latency_ms": benchmark.metrics.p50_latency_ms,
+            "p95_latency_ms": benchmark.metrics.p95_latency_ms,
+            "p99_latency_ms": benchmark.metrics.p99_latency_ms,
+            "drift_score": benchmark.metrics.drift_score,
+            "sample_count": benchmark.metrics.sample_count,
+        },
+        "report_latency_percentiles_ms": report.get("regression_summary", {}).get("latency_percentiles_ms", {}),
+    }
+    (out_dir / "campaign.benchmark.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def fuzz_scenario(path: Path, seed: str, noise: float = 0.05) -> Path:

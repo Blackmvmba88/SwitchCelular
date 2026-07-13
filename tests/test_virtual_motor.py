@@ -119,6 +119,14 @@ class VirtualMotorTests(unittest.TestCase):
         self.assertIn("basic-motion", report["scenario_rankings"])
         self.assertIn("worst_latency", report["scenario_rankings"]["basic-motion"])
         self.assertTrue((ROOT / "platform" / "generated" / "single-campaign" / "campaign.regression.json").exists())
+        self.assertTrue((ROOT / "platform" / "generated" / "single-campaign" / "campaign.benchmark.json").exists())
+
+        benchmark_path = ROOT / "platform" / "generated" / "single-campaign" / "campaign.benchmark.json"
+        benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
+        self.assertEqual(benchmark["protocol"], "blackmamba.virtual.campaign.benchmark.v1")
+        self.assertGreaterEqual(benchmark["sample_count"], 3)
+        self.assertIn("metrics", benchmark)
+        self.assertIn("report_latency_percentiles_ms", benchmark)
 
     def test_baseline_comparison_includes_profile_and_scenario_deltas(self):
         scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
