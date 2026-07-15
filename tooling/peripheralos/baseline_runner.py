@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import argparse
-import difflib
 import json
 from pathlib import Path
 
-from .baseline import compare_campaign_to_baseline, create_baseline, load_baseline, save_baseline
+from .baseline import compare_campaign_to_baseline, create_baseline, load_baseline, render_baseline_diff, save_baseline, write_baseline_diff
 from .campaigns import CampaignScenario, campaign_report, fuzz_scenario_with_hypothesis
 
 
@@ -38,19 +37,11 @@ def main(argv: list[str] | None = None) -> int:
     report_text = json.dumps(report, indent=2, sort_keys=True)
     print(report_text)
     if report["status"] != "compatible":
-        diff = difflib.unified_diff(
-            json.dumps(baseline.get("report", baseline), indent=2, sort_keys=True).splitlines(),
-            json.dumps(current.get("report", current), indent=2, sort_keys=True).splitlines(),
-            fromfile="baseline.report",
-            tofile="current.report",
-            lineterm="",
-        )
-        diff_text = "\n".join(diff)
-        if diff_text:
-            diff_path = out_dir / "baseline.diff.txt"
-            diff_path.write_text(diff_text + "\n", encoding="utf-8")
-            print(diff_text)
-            print(f"diff written to {diff_path}")
+        diff_path = out_dir / "baseline.diff.txt"
+        write_baseline_diff(diff_path, report)
+        diff_text = render_baseline_diff(report)
+        print(diff_text)
+        print(f"diff written to {diff_path}")
         return 1
     return 0
 

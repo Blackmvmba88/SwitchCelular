@@ -6,7 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tooling.peripheralos.baseline import compare_campaign_to_baseline, create_baseline, load_baseline, save_baseline
+from tooling.peripheralos.baseline import compare_campaign_to_baseline, create_baseline, load_baseline, render_baseline_diff, save_baseline, write_baseline_diff
 from tooling.peripheralos.campaigns import CampaignScenario, campaign_report, fuzz_scenario, fuzz_scenario_with_hypothesis, run_campaign
 from tooling.peripheralos.harness import run_harness
 from tooling.peripheralos.simulator import VirtualMotorConfig, load_scenario, run_virtual_motor
@@ -139,6 +139,23 @@ class VirtualMotorTests(unittest.TestCase):
         self.assertIn("basic-motion", report["scenario_deltas"])
         self.assertIn("baseline_report", report)
         self.assertIn("current_report", report)
+
+    def test_baseline_diff_text_is_written_for_drift(self):
+        scenario = ROOT / "platform" / "tests" / "scenarios" / "basic-motion.json"
+        baseline = create_baseline([CampaignScenario(path=scenario, profile="default")], ROOT / "platform" / "generated" / "baseline-diff")
+        current = json.loads(json.dumps(baseline))
+        current["results"][0]["trace_hash"] = "deadbeef"
+        current["results"][0]["avg_latency_ms"] = baseline["results"][0]["avg_latency_ms"] + 1.0
+        current["report"] = campaign_report(current)
+        report = compare_campaign_to_baseline(current, baseline)
+        self.assertEqual(report["status"], "breaking")
+        diff_text = render_baseline_diff(report)
+        self.assertIn("status: breaking", diff_text)
+        self.assertIn("trace_hash", diff_text)
+        diff_path = ROOT / "platform" / "generated" / "baseline-diff" / "baseline.diff.txt"
+        write_baseline_diff(diff_path, report)
+        self.assertTrue(diff_path.exists())
+        self.assertIn("comparison_rows:", diff_path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

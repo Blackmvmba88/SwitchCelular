@@ -127,3 +127,50 @@ def compare_campaign_to_baseline(current: dict[str, Any], baseline: dict[str, An
         "profile_deltas": profile_delta,
         "scenario_deltas": scenario_delta,
     }
+
+
+def render_baseline_diff(report: dict[str, Any]) -> str:
+    lines: list[str] = []
+    lines.append(f"status: {report.get('status', 'unknown')}")
+    lines.append(f"current_count: {report.get('current_count', 0)}")
+    lines.append(f"baseline_count: {report.get('baseline_count', 0)}")
+    current_metrics = report.get("current_metrics", {})
+    baseline_metrics = report.get("baseline_metrics", {})
+    if baseline_metrics or current_metrics:
+        lines.append("metrics:")
+        for key in ["avg_latency_ms", "avg_confidence"]:
+            baseline_value = baseline_metrics.get(key)
+            current_value = current_metrics.get(key)
+            if baseline_value is None and current_value is None:
+                continue
+            lines.append(f"  - {key}: baseline={baseline_value} current={current_value}")
+    drift = report.get("drift", [])
+    if drift:
+        lines.append("drift:")
+        for item in drift:
+            kind = item.get("kind", "unknown")
+            scenario = item.get("scenario")
+            if scenario is not None:
+                lines.append(f"  - scenario={scenario} kind={kind} breaking={item.get('breaking', False)}")
+            else:
+                lines.append(f"  - kind={kind} breaking={item.get('breaking', False)}")
+            if "baseline" in item or "current" in item:
+                lines.append(f"    baseline={item.get('baseline')}")
+                lines.append(f"    current={item.get('current')}")
+    comparison_rows = report.get("comparison_rows", [])
+    if comparison_rows:
+        lines.append("comparison_rows:")
+        for row in comparison_rows:
+            lines.append(
+                "  - "
+                f"scenario={row.get('scenario')} "
+                f"latency_delta_ms={row.get('latency_delta_ms')} "
+                f"confidence_delta={row.get('confidence_delta')}"
+            )
+    return "\n".join(lines) + "\n"
+
+
+def write_baseline_diff(path: Path, report: dict[str, Any]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_baseline_diff(report), encoding="utf-8")
+    return path
