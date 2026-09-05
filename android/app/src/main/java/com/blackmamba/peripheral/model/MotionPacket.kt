@@ -1,14 +1,24 @@
 package com.blackmamba.peripheral.model
 
+/**
+ * Android binding for the canonical MOTION_PACKET_V1 contract.
+ *
+ * Property names are Kotlin-friendly; PacketCodec is responsible for emitting
+ * the normative snake_case wire names used by the Python desktop receiver.
+ */
 data class MotionPacket(
-    val protocolVersion: Int,
+    val version: Int = 1,
     val sequence: Long,
-    val deviceTimestampNs: Long,
+    val timestampNs: Long,
     val orientation: Quaternion,
     val angularVelocity: Vector3,
-    val linearAcceleration: Vector3,
-    val calibrationState: CalibrationState,
-    val batteryPercent: Int,
+    val acceleration: Vector3,
+    val buttons: Int = 0,
+    val battery: Int = 0,
+    val flags: Int = 0,
+    val capabilities: List<String> = emptyList(),
+    val reserved: List<String> = emptyList(),
+    val extensionLength: Int = 0,
 )
 
 data class Quaternion(val w: Float, val x: Float, val y: Float, val z: Float)
