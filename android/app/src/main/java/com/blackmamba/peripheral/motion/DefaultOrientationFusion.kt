@@ -36,22 +36,27 @@ class DefaultOrientationFusion : OrientationFusion {
     }
 
     private fun fromEuler(yaw: Float, pitch: Float, roll: Float): Quaternion {
-        val cy = cos(yaw * 0.5f)
-        val sy = sin(yaw * 0.5f)
-        val cp = cos(pitch * 0.5f)
-        val sp = sin(pitch * 0.5f)
-        val cr = cos(roll * 0.5f)
-        val sr = sin(roll * 0.5f)
+        val halfYaw = yaw.toDouble() * 0.5
+        val halfPitch = pitch.toDouble() * 0.5
+        val halfRoll = roll.toDouble() * 0.5
+        val cy = cos(halfYaw)
+        val sy = sin(halfYaw)
+        val cp = cos(halfPitch)
+        val sp = sin(halfPitch)
+        val cr = cos(halfRoll)
+        val sr = sin(halfRoll)
         return Quaternion(
-            w = cr * cp * cy + sr * sp * sy,
-            x = sr * cp * cy - cr * sp * sy,
-            y = cr * sp * cy + sr * cp * sy,
-            z = cr * cp * sy - sr * sp * cy,
+            w = (cr * cp * cy + sr * sp * sy).toFloat(),
+            x = (sr * cp * cy - cr * sp * sy).toFloat(),
+            y = (cr * sp * cy + sr * cp * sy).toFloat(),
+            z = (cr * cp * sy - sr * sp * cy).toFloat(),
         )
     }
 
     private fun normalize(q: Quaternion): Quaternion {
-        val magnitude = sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z)
+        val squaredMagnitude =
+            q.w.toDouble() * q.w + q.x.toDouble() * q.x + q.y.toDouble() * q.y + q.z.toDouble() * q.z
+        val magnitude = sqrt(squaredMagnitude).toFloat()
         if (magnitude <= 1e-6f) return Quaternion(1f, 0f, 0f, 0f)
         return Quaternion(q.w / magnitude, q.x / magnitude, q.y / magnitude, q.z / magnitude)
     }
