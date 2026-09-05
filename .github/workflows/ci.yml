@@ -16,3 +16,18 @@ jobs:
         run: |
           python3 -m tooling.peripheralos --spec-dir platform/spec --out-dir platform/generated
           python3 -m unittest discover -s tests -v
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+      - name: Compile Android motion producer
+        run: gradle -p android :app:assembleDebug --stacktrace
