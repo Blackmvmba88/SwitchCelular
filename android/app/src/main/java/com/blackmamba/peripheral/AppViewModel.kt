@@ -44,7 +44,11 @@ class AppViewModel(context: Context) : ViewModel() {
     }
 
     fun calibrate() {
-        _uiState.value = _uiState.value.copy(calibrationReady = true)
+        val calibrated = runtime.recenter()
+        _uiState.value = _uiState.value.copy(
+            calibrationReady = calibrated,
+            pairingError = if (calibrated) null else "Motion sensors are not ready for recenter",
+        )
     }
 
     fun setTriggerPressed(pressed: Boolean) {
