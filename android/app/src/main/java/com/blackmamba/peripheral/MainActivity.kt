@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                     statusText.text = buildString {
                         appendLine("BlackMamba PeripheralOS")
                         appendLine()
-                        appendLine(if (state.connected) "UDP: CONNECTED" else "UDP: WAITING FOR QR")
+                        appendLine(if (state.connected) "UDP: ARMED" else "UDP: WAITING FOR QR")
                         val endpoint = state.pairingHost?.let { host ->
                             state.pairingPort?.let { port -> "$host:$port" }
                         }
@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                         appendLine("Gyro: ${if (state.sensorGyroscope) "OK" else "NO"}")
                         appendLine("Accel: ${if (state.sensorAccelerometer) "OK" else "NO"}")
                         appendLine("Mag: ${if (state.sensorMagnetometer) "OK" else "NO"}")
+                        appendLine("Center: ${if (state.calibrationReady) "CALIBRATED" else "RAW"}")
                         appendLine("Packets: ${state.packetsSent}")
                         state.pairingError?.let { appendLine("Error: $it") }
                     }
@@ -75,6 +76,11 @@ class MainActivity : ComponentActivity() {
             text = "BlackMamba PeripheralOS\n\nScan the desktop QR to pair"
         }
 
+        val recenterButton = Button(this).apply {
+            text = "RECENTER"
+            setOnClickListener { viewModel.calibrate() }
+        }
+
         val fireButton = Button(this).apply {
             text = "FIRE"
             textSize = 24f
@@ -98,6 +104,13 @@ class MainActivity : ComponentActivity() {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     0,
                     1f,
+                ),
+            )
+            addView(
+                recenterButton,
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 ),
             )
             addView(
