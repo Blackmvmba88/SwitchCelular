@@ -10,6 +10,25 @@ This document describes the first playable implementation path for the "phone as
 
 The objective is to keep the core small, explicit, and testable while the implementation grows in layers.
 
+## Connection Bootstrap
+
+The default v0.1 connection path is local Wi-Fi with QR bootstrap:
+
+1. Start the desktop UDP receiver.
+2. Generate a short-lived pairing QR:
+
+```bash
+python -m pip install -r desktop/requirements-pairing.txt
+python desktop/pairing_qr.py --port 41235
+```
+
+3. Open the generated `pairing.svg` on the desktop.
+4. Scan it from Android.
+5. Android opens `blackmamba://pair`, validates the descriptor, and preloads the desktop host and UDP port.
+6. The runtime connects only after explicit user confirmation.
+
+The QR descriptor is discovery/bootstrap metadata. It is not transport authentication. See `rfcs/0001-qr-lan-pairing.md`.
+
 ## Runtime Layers
 
 1. `sensor_core`
@@ -51,6 +70,12 @@ The objective is to keep the core small, explicit, and testable while the implem
 ## MVP Flow
 
 ```text
+desktop receiver
+  ↓
+short-lived pairing QR
+  ↓
+Android deep link / endpoint preload
+  ↓
 phone sensors
   ↓
 sensor_core
@@ -70,6 +95,7 @@ virtual mouse / virtual axis
 
 ## Required Features
 
+- Discover the desktop endpoint through QR pairing.
 - Read motion sensors.
 - Produce orientation frames.
 - Recenter on demand.
@@ -98,7 +124,8 @@ virtual mouse / virtual axis
 7. Add UDP transport.
 8. Add desktop receiver.
 9. Add mouse-relative output.
-10. Add pistol profile loading.
-11. Add trigger handling.
-12. Add diagnostics.
-13. Add regression traces.
+10. Add QR endpoint bootstrap.
+11. Add pistol profile loading.
+12. Add trigger handling.
+13. Add diagnostics.
+14. Add regression traces.
