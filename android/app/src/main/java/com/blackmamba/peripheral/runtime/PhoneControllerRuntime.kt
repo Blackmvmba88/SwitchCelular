@@ -82,6 +82,12 @@ class PhoneControllerRuntime(context: Context) {
         }
     }
 
+    fun recenter(): Boolean = engine.recenter(sensorSource.snapshot())
+
+    fun clearCalibration() {
+        engine.clearCalibration()
+    }
+
     suspend fun connect(descriptor: PairingDescriptor) {
         require(descriptor.transport == "udp") { "Only UDP pairing is supported by this runtime" }
         transport.connect(descriptor.host, descriptor.port)
