@@ -10,5 +10,6 @@ interface MotionEngine {
         profile: MotionProfile,
         sequence: Long,
         batteryPercent: Int,
+        buttons: Int = 0,
     ): MotionPacket
 }
