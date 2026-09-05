@@ -10,25 +10,6 @@ This document describes the first playable implementation path for the "phone as
 
 The objective is to keep the core small, explicit, and testable while the implementation grows in layers.
 
-## Connection Bootstrap
-
-The default v0.1 connection path is local Wi-Fi with QR bootstrap:
-
-1. Start the desktop UDP receiver.
-2. Generate a short-lived pairing QR:
-
-```bash
-python -m pip install -r desktop/requirements-pairing.txt
-python desktop/pairing_qr.py --port 41235
-```
-
-3. Open the generated `pairing.svg` on the desktop.
-4. Scan it from Android.
-5. Android opens `blackmamba://pair`, validates the descriptor, and preloads the desktop host and UDP port.
-6. The runtime connects only after explicit user confirmation.
-
-The QR descriptor is discovery/bootstrap metadata. It is not transport authentication. See `rfcs/0001-qr-lan-pairing.md`.
-
 ## Runtime Layers
 
 1. `sensor_core`
@@ -44,66 +25,97 @@ The QR descriptor is discovery/bootstrap metadata. It is not transport authentic
    - Apply dead zones and sensitivity.
    - Compensate for drift.
 
-4. `transport_core`
+4. `pairing_core`
+   - Bootstrap the LAN endpoint with a short-lived QR descriptor.
+   - Carry transport, host, port, nonce, and expiry without polluting the motion packet contract.
+
+5. `transport_core`
    - Send aim packets to the desktop host.
    - MVP transport is UDP.
 
-5. `mapper_core`
+6. `mapper_core`
    - Convert calibrated orientation into aim deltas.
    - Emit relative mouse movement on the host.
 
-6. `trigger_core`
+7. `trigger_core`
    - Map touch or physical inputs to fire, reload, zoom, and melee.
 
-7. `profile_core`
+8. `profile_core`
    - Load and validate the pistol profile.
    - Keep game logic out of the core.
 
-8. `diagnostics_core`
+9. `diagnostics_core`
    - Track latency, jitter, packet loss, and drift score.
 
-9. `regression_core`
-   - Record traces.
-   - Compare against goldens.
-   - Detect trajectory drift.
+10. `regression_core`
+    - Record traces.
+    - Compare against goldens.
+    - Detect trajectory drift.
 
 ## MVP Flow
 
 ```text
-desktop receiver
+desktop pairing QR
   ↓
-short-lived pairing QR
-  ↓
-Android deep link / endpoint preload
+blackmamba://pair deep link
   ↓
 phone sensors
   ↓
-sensor_core
+Android SensorManagerSource
   ↓
-fusion_core
+orientation fusion
   ↓
-calibration_core
+MOTION_PACKET_V1
   ↓
-mapper_core
+UDP transport
   ↓
-transport_core
+desktop receiver
   ↓
-desktop_host
+AimFrame adapter
   ↓
-virtual mouse / virtual axis
+mapper_core + pistol profile
+  ↓
+preview deltas
+  ↓ (explicit --mouse opt-in on macOS)
+relative mouse / left-click FIRE
 ```
 
 ## Required Features
 
-- Discover the desktop endpoint through QR pairing.
-- Read motion sensors.
-- Produce orientation frames.
-- Recenter on demand.
-- Apply sensitivity and dead zones.
-- Send aim packets over UDP.
-- Receive packets on desktop.
-- Emit relative mouse movement.
-- Fire with a touch button.
+- [x] Short-lived LAN QR pairing descriptor.
+- [x] Android deep-link pairing parser.
+- [x] Read motion sensors from Android `SensorManager`.
+- [x] Produce normalized orientation quaternions.
+- [ ] Recenter on demand with a real calibration transform.
+- [x] Apply sensitivity, dead zones, and smoothing in the existing desktop mapper.
+- [x] Send canonical motion packets over UDP.
+- [x] Receive packets continuously on desktop.
+- [x] Preview mapped aim deltas without moving the cursor.
+- [x] Opt-in relative mouse movement on macOS.
+- [x] Fire with a touch button and forward it as button bit `0x01`.
+- [ ] Authenticate the post-QR session with a real handshake/ACK.
+- [ ] Add live latency/jitter/loss diagnostics to the first playable UI.
+
+## Safety / Trust Boundary
+
+The QR is currently discovery/bootstrap only. UDP `connect()` configures a destination but does not prove a peer is reachable or authenticated. Use the current MVP only on a trusted LAN until the pairing nonce is consumed by an authenticated handshake.
+
+## First Playable Test
+
+```bash
+# Generate QR
+python -m pip install -r desktop/requirements-pairing.txt
+python desktop/pairing_qr.py --port 41235
+
+# Inspect raw packets
+python desktop/motion_receiver.py --port 41235
+
+# Or inspect mapped deltas
+python desktop/aim_preview.py --port 41235
+
+# Only after preview looks correct, opt into macOS cursor control
+python desktop/aim_preview.py --port 41235 --mouse
+```
 
 ## Non Goals
 
@@ -113,19 +125,10 @@ virtual mouse / virtual axis
 - No advanced recoil model in v1.
 - No multiplayer-specific logic.
 
-## Suggested Commit Order
+## Next Execution Slice
 
-1. Create the workspace structure.
-2. Define sensor, orientation, and aim packet contracts.
-3. Add sensor normalization.
-4. Add basic fusion and orientation output.
-5. Add calibration transforms.
-6. Add aim mapping.
-7. Add UDP transport.
-8. Add desktop receiver.
-9. Add mouse-relative output.
-10. Add QR endpoint bootstrap.
-11. Add pistol profile loading.
-12. Add trigger handling.
-13. Add diagnostics.
-14. Add regression traces.
+1. Implement real recenter/calibration state on Android and desktop.
+2. Add authenticated pairing ACK using the QR nonce.
+3. Add latency/jitter/loss telemetry and packet sequence-gap detection.
+4. Validate mouse scale/inversion on physical Android + macOS hardware.
+5. Only then mark the first playable MVP as stable.
