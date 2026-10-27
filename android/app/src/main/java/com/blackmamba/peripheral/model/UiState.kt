@@ -11,4 +11,8 @@ data class UiState(
     val latencyMs: Float = 0f,
     val batteryPercent: Int = 0,
     val packetsSent: Long = 0L,
+    val pairingReady: Boolean = false,
+    val pairingHost: String? = null,
+    val pairingPort: Int? = null,
+    val pairingError: String? = null,
 )

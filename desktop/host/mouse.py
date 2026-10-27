@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from ctypes import Structure, c_double, c_int64, c_uint32, c_void_p, cdll
-from ctypes import POINTER
-from typing import Callable, Protocol
+from ctypes import Structure, c_double, c_uint32, c_void_p, cdll
+from typing import Protocol
 
 
 class MouseBackend(Protocol):
@@ -35,6 +34,7 @@ def _load_core_graphics():
 class RelativeMouseAdapter:
     backend: MouseBackend | None = None
     emitted: list[tuple[float, float]] = field(default_factory=list)
+    button_events: list[int] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if self.backend is None:
@@ -49,13 +49,18 @@ class RelativeMouseAdapter:
             self.backend.move_relative(dx, dy)
 
     def apply_buttons(self, buttons: int) -> None:
-        return None
+        self.button_events.append(buttons)
+        setter = getattr(self.backend, "set_buttons", None)
+        if callable(setter):
+            setter(buttons)
 
     def flush(self) -> None:
         return None
 
     def shutdown(self) -> None:
-        return None
+        setter = getattr(self.backend, "set_buttons", None)
+        if callable(setter):
+            setter(0)
 
 
 def _create_core_graphics_backend() -> MouseBackend | None:
@@ -66,27 +71,54 @@ def _create_core_graphics_backend() -> MouseBackend | None:
     try:
         cg.CGEventSourceCreate.argtypes = [c_uint32]
         cg.CGEventSourceCreate.restype = c_void_p
+        cg.CGEventCreate.argtypes = [c_void_p]
+        cg.CGEventCreate.restype = c_void_p
+        cg.CGEventGetLocation.argtypes = [c_void_p]
+        cg.CGEventGetLocation.restype = CGPoint
         cg.CGEventCreateMouseEvent.argtypes = [c_void_p, c_uint32, CGPoint, c_uint32]
         cg.CGEventCreateMouseEvent.restype = c_void_p
-        cg.CGEventSetIntegerValueField.argtypes = [c_void_p, c_uint32, c_int64]
         cg.CGEventPost.argtypes = [c_uint32, c_void_p]
         cg.CFRelease.argtypes = [c_void_p]
     except Exception:
         return None
 
     class CoreGraphicsMouseBackend:
-        def move_relative(self, dx: float, dy: float) -> None:
+        def __init__(self) -> None:
+            self._buttons = 0
+
+        def _current_location(self) -> CGPoint | None:
+            probe = cg.CGEventCreate(None)
+            if not probe:
+                return None
+            try:
+                return cg.CGEventGetLocation(probe)
+            finally:
+                cg.CFRelease(probe)
+
+        def _post_mouse_event(self, event_type: int, button: int, location: CGPoint) -> None:
             source = cg.CGEventSourceCreate(0)
             if not source:
-                return None
-            event = cg.CGEventCreateMouseEvent(source, 5, CGPoint(0.0, 0.0), 0)
-            if not event:
-                cg.CFRelease(source)
-                return None
-            cg.CGEventSetIntegerValueField(event, 93, int(round(dx)))
-            cg.CGEventSetIntegerValueField(event, 94, int(round(dy)))
-            cg.CGEventPost(0, event)
-            cg.CFRelease(event)
+                return
+            event = cg.CGEventCreateMouseEvent(source, event_type, location, button)
+            if event:
+                cg.CGEventPost(0, event)
+                cg.CFRelease(event)
             cg.CFRelease(source)
+
+        def move_relative(self, dx: float, dy: float) -> None:
+            location = self._current_location()
+            if location is None:
+                return
+            target = CGPoint(location.x + dx, location.y + dy)
+            self._post_mouse_event(5, 0, target)  # kCGEventMouseMoved
+
+        def set_buttons(self, buttons: int) -> None:
+            changed = self._buttons ^ buttons
+            if changed & 0x01:
+                location = self._current_location()
+                if location is not None:
+                    pressed = bool(buttons & 0x01)
+                    self._post_mouse_event(1 if pressed else 2, 0, location)
+            self._buttons = buttons
 
     return CoreGraphicsMouseBackend()

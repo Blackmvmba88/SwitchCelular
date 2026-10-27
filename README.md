@@ -131,9 +131,9 @@ Before implementing a feature:
 
 ## Current Status
 
-PeripheralOS is in foundation mode.
+PeripheralOS is in foundation mode with an active first-playable phone-controller path.
 
-The repository is intentionally biased toward governance, architecture, and contract design before runtime implementation.
+The repository remains intentionally biased toward governance, architecture, and contract design, but the Android-to-desktop motion path now has a concrete MVP implementation under review.
 
 ## Project Direction
 
@@ -147,14 +147,34 @@ The first user-facing MVP is documented in [`docs/GUN_MODE_MVP.md`](./docs/GUN_M
 
 That path treats the phone as a motion pistol controller:
 
-- sensors on the phone
+- short-lived LAN QR pairing
+- Android sensor capture
 - orientation fusion
-- calibration
+- canonical `MOTION_PACKET_V1`
 - UDP transport
-- desktop aim mapping
-- trigger input
+- desktop packet receiver
+- aim mapping through the `pistol` profile
+- preview deltas before host control
+- opt-in macOS relative mouse output
+- touch `FIRE` forwarded as button bit `0x01`
 
-The implementation must keep game logic out of the core and remain profile-driven.
+The implementation keeps game logic out of core and remains profile-driven.
+
+### Quick LAN Preview
+
+```bash
+python -m pip install -r desktop/requirements-pairing.txt
+python desktop/pairing_qr.py --port 41235
+python desktop/aim_preview.py --port 41235
+```
+
+Scan the generated QR on Android, open PeripheralOS, move the phone, and inspect mapped `dx/dy`. On macOS, only after preview looks correct, enable host control explicitly:
+
+```bash
+python desktop/aim_preview.py --port 41235 --mouse
+```
+
+The QR is discovery/bootstrap only in this MVP. UDP does not authenticate the peer; use the current path on a trusted LAN until the nonce is consumed by a real session handshake.
 
 ## Implementation Layout
 

@@ -118,18 +118,26 @@ class EndToEndTests(unittest.TestCase):
         class FakeMouseBackend:
             def __init__(self) -> None:
                 self.calls: list[tuple[float, float]] = []
+                self.buttons: list[int] = []
 
             def move_relative(self, dx: float, dy: float) -> None:
                 self.calls.append((dx, dy))
+
+            def set_buttons(self, buttons: int) -> None:
+                self.buttons.append(buttons)
 
         backend = FakeMouseBackend()
         adapter = RelativeMouseAdapter(backend=backend)
         adapter.initialize()
         adapter.apply_motion(3.0, -2.0)
+        adapter.apply_buttons(1)
+        adapter.apply_buttons(0)
         adapter.flush()
         adapter.shutdown()
         self.assertEqual(adapter.emitted, [(3.0, -2.0)])
+        self.assertEqual(adapter.button_events, [1, 0])
         self.assertEqual(backend.calls, [(3.0, -2.0)])
+        self.assertEqual(backend.buttons, [1, 0, 0])
 
 
 if __name__ == "__main__":
